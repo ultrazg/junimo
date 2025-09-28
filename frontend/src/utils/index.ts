@@ -1,4 +1,4 @@
 import { setLightMode, setDarkMode } from './theme'
-import { APP_INFO } from './env'
+import { APP_NAME, APP_VERSION } from './env'
 
-export { setLightMode, setDarkMode, APP_INFO }
+export { setLightMode, setDarkMode, APP_NAME, APP_VERSION }

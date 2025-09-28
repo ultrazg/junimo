@@ -1,7 +1,7 @@
 import React from 'react'
 import { Modal } from '@/components'
 import { Typography, Button, Link, Divider } from '@mui/joy'
-import { APP_INFO } from '@/utils'
+import { APP_NAME, APP_VERSION } from '@/utils'
 import styles from './index.module.scss'
 import LoopTwoToneIcon from '@mui/icons-material/LoopTwoTone'
 import BalanceTwoToneIcon from '@mui/icons-material/BalanceTwoTone'
@@ -26,16 +26,16 @@ const About: React.FC<IProps> = ({ open, onClose }) => {
           </div>
 
           <div className={styles['app-name']}>
-            <Typography level="h4">{APP_INFO.name}</Typography>
+            <Typography level="h4">{APP_NAME}</Typography>
           </div>
 
           <div>
-            <Typography>v{APP_INFO.version}</Typography>
+            <Typography>v{APP_VERSION}</Typography>
           </div>
 
           <div>
             <Typography>
-              Junimo 是星露谷物语（<Link>Stardew Valley</Link>）Mod
+              {APP_NAME} 是星露谷物语（<Link>Stardew Valley</Link>）Mod
               管理软件，使用 <Link>wails</Link> + <Link>react</Link> 开发
             </Typography>
           </div>
