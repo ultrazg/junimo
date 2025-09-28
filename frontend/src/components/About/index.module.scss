@@ -1,0 +1,35 @@
+.about-wrapper {
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  text-align: center;
+
+  svg {
+    margin-right: 6px;
+  }
+
+  .app-logo {
+    display: flex;
+    justify-content: center;
+
+    .logo {
+      width: 6rem;
+      height: 6rem;
+      background: var(--joy-palette-primary-100);
+    }
+  }
+
+  .app-name {
+    margin-top: 0.5rem;
+  }
+
+  .check-for-update-button {
+    margin: 1rem 0;
+  }
+
+  .extra-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}

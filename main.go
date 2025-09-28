@@ -16,9 +16,9 @@ func main() {
 
 	err := wails.Run(&options.App{
 		Title:     "Junimo",
-		Width:     800,
+		Width:     900,
 		Height:    600,
-		MinWidth:  800,
+		MinWidth:  900,
 		MinHeight: 600,
 		AssetServer: &assetserver.Options{
 			Assets: assets,

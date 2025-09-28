@@ -1,0 +1,26 @@
+.setting-wrapper {
+  width: 400px;
+  //max-height: 300px;
+  //overflow: auto;
+  user-select: none;
+
+  svg {
+    margin-right: 6px;
+  }
+
+  .setting-item {
+    margin-bottom: 1rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .label {
+    }
+
+    .value {
+      margin-top: 12px;
+      //text-align: right;
+    }
+  }
+}
