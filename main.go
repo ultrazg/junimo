@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 
+	"github.com/ultrazg/junimo/backend"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
@@ -12,7 +13,7 @@ import (
 var assets embed.FS
 
 func main() {
-	app := NewApp()
+	app := backend.NewApp()
 
 	err := wails.Run(&options.App{
 		Title:     "Junimo",
@@ -23,7 +24,7 @@ func main() {
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
-		OnStartup: app.startup,
+		OnStartup: app.Startup,
 		Bind: []interface{}{
 			app,
 		},

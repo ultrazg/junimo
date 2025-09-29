@@ -17,10 +17,7 @@ const MenuBar = () => {
           spacing={1}
           color={'primary'}
         >
-          <IconButton
-            style={{ cursor: 'default' }}
-            onClick={() => setSettingOpen(true)}
-          >
+          <IconButton onClick={() => setSettingOpen(true)}>
             <SettingsTwoToneIcon />
             <Typography
               className={styles['button-text']}
@@ -30,10 +27,7 @@ const MenuBar = () => {
             </Typography>
           </IconButton>
 
-          <IconButton
-            style={{ cursor: 'default' }}
-            onClick={() => setAboutOpen(true)}
-          >
+          <IconButton onClick={() => setAboutOpen(true)}>
             <InfoTwoToneIcon />
             <Typography
               className={styles['button-text']}

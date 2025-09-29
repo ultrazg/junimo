@@ -4,7 +4,7 @@ frontend/dist
 .DS_Store
 .Thumbs.db
 wailsjs
-config.yaml
+config.json
 
 # Logs
 logs

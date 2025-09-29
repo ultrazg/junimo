@@ -22,7 +22,7 @@ const About: React.FC<IProps> = ({ open, onClose }) => {
       >
         <div className={styles['about-wrapper']}>
           <div className={styles['app-logo']}>
-            <div className={styles['logo']}>app_logo</div>
+            <div className={styles['logo']} />
           </div>
 
           <div className={styles['app-name']}>
