@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Modal } from '@/components'
-import { Button, Radio, RadioGroup, Typography } from '@mui/joy'
+import { UpdateConfig, setLightMode, setDarkMode, getStyleMode } from '@/utils'
+import { Button, Radio, RadioGroup, Typography, useColorScheme } from '@mui/joy'
 import styles from './index.module.scss'
 import FolderTwoToneIcon from '@mui/icons-material/FolderTwoTone'
 import BuildTwoToneIcon from '@mui/icons-material/BuildTwoTone'
@@ -10,9 +11,37 @@ type IProps = {
   onClose: () => void
 }
 
-const THEME_LISTS = ['system', 'light', 'dark']
+const THEME_LISTS = ['light', 'dark']
 
 const Setting: React.FC<IProps> = ({ open, onClose }) => {
+  const [currentTheme, setCurrentTheme] = useState<string>('light')
+  const { setMode } = useColorScheme()
+
+  const init = async () => {
+    const theme = await getStyleMode()
+
+    setCurrentTheme(theme)
+  }
+
+  const handleChangeTheme = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const theme = event.target.value
+    setCurrentTheme(theme)
+    setMode(theme === 'light' ? 'light' : 'dark')
+    UpdateConfig('theme', theme).then()
+
+    if (theme === 'light') {
+      setLightMode()
+    } else {
+      setDarkMode()
+    }
+  }
+
+  useEffect(() => {
+    if (open) {
+      init()
+    }
+  }, [open])
+
   return (
     <React.Fragment>
       <Modal
@@ -26,14 +55,17 @@ const Setting: React.FC<IProps> = ({ open, onClose }) => {
               <Typography level={'title-lg'}>主题</Typography>
             </div>
             <div className={styles['value']}>
-              <RadioGroup orientation={'horizontal'}>
+              <RadioGroup
+                value={currentTheme}
+                orientation={'horizontal'}
+              >
                 {THEME_LISTS.map((item) => (
                   <Radio
+                    onChange={handleChangeTheme}
                     key={item}
                     value={item}
                     label={
                       {
-                        system: <Typography>跟随系统</Typography>,
                         light: <Typography>浅色模式</Typography>,
                         dark: <Typography>深色模式</Typography>,
                       }[item]
