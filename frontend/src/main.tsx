@@ -1,5 +1,6 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
+import { SnackbarProvider } from '@/providers/SnackbarProvider'
 import App from './App'
 import { CssVarsProvider, extendTheme } from '@mui/joy/styles'
 import { CssBaseline } from '@mui/joy'
@@ -59,7 +60,9 @@ root.render(
       defaultColorScheme={'light'}
     >
       <CssBaseline />
-      <App />
+      <SnackbarProvider>
+        <App />
+      </SnackbarProvider>
     </CssVarsProvider>
   </React.StrictMode>,
 )

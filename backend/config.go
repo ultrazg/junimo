@@ -13,6 +13,7 @@ func init() {
 	viper.AddConfigPath(".")
 
 	viper.SetDefault("theme", "light")
+	viper.SetDefault("game_path", "")
 
 	err := viper.ReadInConfig()
 	if err != nil {
