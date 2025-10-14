@@ -1,6 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { Modal } from '@/components'
-import { UpdateConfig, setLightMode, setDarkMode, getStyleMode } from '@/utils'
+import {
+  UpdateConfig,
+  setLightMode,
+  setDarkMode,
+  ReadConfig,
+  snackbar,
+  onSaveGamePath,
+  OpenGameDir,
+  OpenAppDir,
+} from '@/utils'
 import { Button, Radio, RadioGroup, Typography, useColorScheme } from '@mui/joy'
 import styles from './index.module.scss'
 import FolderTwoToneIcon from '@mui/icons-material/FolderTwoTone'
@@ -14,18 +23,23 @@ type IProps = {
 const THEME_LISTS = ['light', 'dark']
 
 const Setting: React.FC<IProps> = ({ open, onClose }) => {
-  const [currentTheme, setCurrentTheme] = useState<string>('light')
+  const [currentTheme, setCurrentTheme] = useState<'light' | 'dark'>('light')
+  const [gamePath, setGamePath] = useState<string>('')
   const { setMode } = useColorScheme()
 
-  const init = async () => {
-    const theme = await getStyleMode()
+  const init = () => {
+    ReadConfig('theme').then((res: 'light' | 'dark') => {
+      setCurrentTheme(res)
+    })
 
-    setCurrentTheme(theme)
+    ReadConfig('game_path').then((res: string) => {
+      setGamePath(res)
+    })
   }
 
   const handleChangeTheme = (event: React.ChangeEvent<HTMLInputElement>) => {
     const theme = event.target.value
-    setCurrentTheme(theme)
+    setCurrentTheme(theme as 'light' | 'dark')
     setMode(theme === 'light' ? 'light' : 'dark')
     UpdateConfig('theme', theme).then()
 
@@ -33,6 +47,24 @@ const Setting: React.FC<IProps> = ({ open, onClose }) => {
       setLightMode()
     } else {
       setDarkMode()
+    }
+  }
+
+  const handleSaveGamePath = async () => {
+    const { success, message, path } = await onSaveGamePath()
+
+    if (success) {
+      snackbar.show(`游戏所在路径已设置为: ${path}`, {
+        showIcon: true,
+        color: 'success',
+        variant: 'soft',
+      })
+    } else {
+      snackbar.show(message, {
+        showIcon: true,
+        color: 'danger',
+        variant: 'soft',
+      })
     }
   }
 
@@ -78,30 +110,52 @@ const Setting: React.FC<IProps> = ({ open, onClose }) => {
 
           <div className={styles['setting-item']}>
             <div className={styles['label']}>
-              <Typography level={'title-lg'}>游戏所在路径</Typography>
+              <Typography level={'title-lg'}>游戏目录</Typography>
             </div>
             <div className={styles['value']}>
+              {gamePath !== '' && (
+                <Typography
+                  level={'body-md'}
+                  sx={{ mb: 1.5 }}
+                >
+                  当前游戏目录：{gamePath}
+                </Typography>
+              )}
               <Button
                 size={'sm'}
                 variant={'soft'}
+                onClick={handleSaveGamePath}
               >
                 <BuildTwoToneIcon />
-                设置游戏所在路径
+                {gamePath === '' ? '设置游戏目录' : '重新设置'}
               </Button>
+
+              {gamePath !== '' && (
+                <Button
+                  size={'sm'}
+                  variant={'soft'}
+                  sx={{ ml: 1.5 }}
+                  onClick={() => OpenGameDir()}
+                >
+                  <FolderTwoToneIcon />
+                  打开游戏目录
+                </Button>
+              )}
             </div>
           </div>
 
           <div className={styles['setting-item']}>
             <div className={styles['label']}>
-              <Typography level={'title-lg'}>应用程序所在路径</Typography>
+              <Typography level={'title-lg'}>应用程序目录</Typography>
             </div>
             <div className={styles['value']}>
               <Button
                 size={'sm'}
                 variant={'soft'}
+                onClick={() => OpenAppDir()}
               >
                 <FolderTwoToneIcon />
-                打开应用程序所在路径
+                打开应用程序目录
               </Button>
             </div>
           </div>

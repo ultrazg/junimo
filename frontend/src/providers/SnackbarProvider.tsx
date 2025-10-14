@@ -11,7 +11,7 @@ import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined'
 import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined'
 import HighlightOffOutlinedIcon from '@mui/icons-material/HighlightOffOutlined'
 
-type SnackbarOptions = {
+export type SnackbarOptions = {
   color?: 'primary' | 'neutral' | 'danger' | 'success' | 'warning'
   variant?: 'soft' | 'solid' | 'outlined' | 'plain'
   autoHideDuration?: number

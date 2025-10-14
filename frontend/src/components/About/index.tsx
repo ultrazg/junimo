@@ -43,7 +43,7 @@ const About: React.FC<IProps> = ({ open, onClose }) => {
           <div className={styles['check-for-update-button']}>
             <Button
               size={'sm'}
-              variant={'plain'}
+              variant={'soft'}
             >
               <LoopTwoToneIcon />
               检查更新...

@@ -1,11 +1,18 @@
 import React, { Fragment, useEffect } from 'react'
-import { MenuBar } from '@/components'
-import { setLightMode, setDarkMode, getStyleMode } from '@/utils'
+import { MenuBar, Mods } from '@/components'
+import {
+  setLightMode,
+  setDarkMode,
+  ReadConfig,
+  EventsOn,
+  snackbar,
+} from '@/utils'
+import { SnackbarOptions } from '@/providers/SnackbarProvider'
 
 const App = () => {
   const initStyleMode = () => {
-    getStyleMode().then((style) => {
-      if (style === 'light') {
+    ReadConfig('theme').then((res) => {
+      if (res === 'light') {
         setLightMode()
       } else {
         setDarkMode()
@@ -15,11 +22,28 @@ const App = () => {
 
   useEffect(() => {
     initStyleMode()
+
+    const showSnackbar = EventsOn(
+      'snackbarShow',
+      (options: SnackbarOptions & { message: string }) => {
+        snackbar.show(options.message, {
+          showIcon: options.showIcon,
+          autoHideDuration: options.autoHideDuration,
+          color: options.color,
+          variant: options.variant,
+        })
+      },
+    )
+
+    return () => {
+      showSnackbar()
+    }
   }, [])
 
   return (
     <Fragment>
       <MenuBar />
+      <Mods />
     </Fragment>
   )
 }

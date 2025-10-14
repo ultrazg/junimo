@@ -66,3 +66,9 @@ func verifyGamePath(path string) bool {
 
 	return true
 }
+
+func (a *App) LoadMods() {
+	gamePath := a.ReadConfig("game_path")
+
+	fmt.Println("game_path: ", gamePath)
+}

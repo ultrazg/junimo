@@ -1,17 +1,27 @@
-import { setLightMode, setDarkMode, getStyleMode } from './theme'
+import { setLightMode, setDarkMode } from './theme'
 import { APP_NAME, APP_VERSION } from './env'
-import { ReadConfig, UpdateConfig } from 'wailsjs/go/backend/App'
+import {
+  ReadConfig,
+  UpdateConfig,
+  LoadMods,
+  OpenGameDir,
+  OpenAppDir,
+} from 'wailsjs/go/backend/App'
+import { EventsOn } from 'wailsjs/runtime'
 import { onSaveGamePath } from './fs'
 import { snackbar } from '@/providers/SnackbarProvider'
 
 export {
   setLightMode,
   setDarkMode,
-  getStyleMode,
   APP_NAME,
   APP_VERSION,
   ReadConfig,
   UpdateConfig,
   onSaveGamePath,
   snackbar,
+  LoadMods,
+  EventsOn,
+  OpenGameDir,
+  OpenAppDir,
 }

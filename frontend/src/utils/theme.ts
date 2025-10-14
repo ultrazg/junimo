@@ -9,10 +9,4 @@ const setDarkMode = () => {
   WindowSetDarkTheme()
 }
 
-const getStyleMode = async () => {
-  const { theme } = await ReadConfig()
-
-  return theme || 'light'
-}
-
-export { setLightMode, setDarkMode, getStyleMode }
+export { setLightMode, setDarkMode }
