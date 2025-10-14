@@ -5,6 +5,12 @@ type Config struct {
 	GamePath string `json:"game_path"`
 }
 
+type SaveGamePathResultFlag struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+	Path    string `json:"path"`
+}
+
 type SnackbarVariant string
 
 type SnackbarColor string
@@ -30,4 +36,15 @@ type SnackbarShowOptions struct {
 	AutoHideDuration int             `json:"autoHideDuration"`
 	Color            SnackbarColor   `json:"color"`
 	Variant          SnackbarVariant `json:"variant"`
+}
+
+type ModManifestJson struct {
+	Name              string   `json:"name"`
+	Author            string   `json:"author"`
+	Version           string   `json:"version"`
+	MinimumApiVersion string   `json:"minimumApiVersion"`
+	Description       string   `json:"description"`
+	UniqueID          string   `json:"uniqueID"`
+	EntryDll          string   `json:"entryDll"`
+	UpdateKeys        []string `json:"updateKeys"`
 }

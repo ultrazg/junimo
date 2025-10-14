@@ -110,7 +110,12 @@ const Setting: React.FC<IProps> = ({ open, onClose }) => {
 
           <div className={styles['setting-item']}>
             <div className={styles['label']}>
-              <Typography level={'title-lg'}>游戏目录</Typography>
+              <Typography level={'title-lg'}>
+                游戏目录
+                <Typography level={'body-sm'}>
+                  （Stardew Valley.exe 所在目录）
+                </Typography>
+              </Typography>
             </div>
             <div className={styles['value']}>
               {gamePath !== '' && (

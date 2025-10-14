@@ -9,13 +9,8 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-type SaveGamePathResultFlag struct {
-	Success bool   `json:"success"`
-	Message string `json:"message"`
-	Path    string `json:"path"`
-}
-
-const gameExecFile = "horizon.exe" //
+const SMAPIExecFileName = "StardewModdingAPI.exe"
+const ModManifestFileName = "manifest.json"
 
 func (a *App) SaveGamePath() SaveGamePathResultFlag {
 	options := runtime.OpenDialogOptions{
@@ -58,7 +53,7 @@ func (a *App) SaveGamePath() SaveGamePathResultFlag {
 }
 
 func verifyGamePath(path string) bool {
-	gameExecFilePath := filepath.Join(path, gameExecFile)
+	gameExecFilePath := filepath.Join(path, SMAPIExecFileName)
 
 	if _, err := os.Stat(gameExecFilePath); os.IsNotExist(err) {
 		return false
@@ -69,6 +64,49 @@ func verifyGamePath(path string) bool {
 
 func (a *App) LoadMods() {
 	gamePath := a.ReadConfig("game_path")
+	modsPath := filepath.Join(gamePath.(string), "Mods")
 
-	fmt.Println("game_path: ", gamePath)
+	mods, err := os.ReadDir(modsPath)
+	if err != nil {
+		log.Printf("读取Mods目录失败: %v", err)
+
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:  fmt.Sprintf("读取Mods目录失败: %v", err),
+			ShowIcon: true,
+			Color:    SnackbarColorDanger,
+			Variant:  SnackbarVariantSoft,
+		})
+
+		return
+	}
+
+	for _, mod := range mods {
+		if mod.IsDir() {
+			findModManifestFile(filepath.Join(modsPath, mod.Name()))
+		}
+	}
+}
+
+func findModManifestFile(path string) {
+	manifestFilePath := filepath.Join(path, ModManifestFileName)
+	if _, err := os.Stat(manifestFilePath); os.IsNotExist(err) {
+
+		dirs, err := os.ReadDir(path)
+		if err != nil {
+			log.Printf("读取目录 %s 失败: %v", path, err)
+
+			return
+		}
+
+		for _, dir := range dirs {
+
+			if dir.IsDir() {
+				findModManifestFile(filepath.Join(path, dir.Name()))
+			}
+
+		}
+	} else {
+		// ...
+		fmt.Printf("√ 目录 %s 中存在 %s 文件\n", path, ModManifestFileName)
+	}
 }
