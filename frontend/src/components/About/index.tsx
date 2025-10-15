@@ -6,6 +6,7 @@ import styles from './index.module.scss'
 import LoopTwoToneIcon from '@mui/icons-material/LoopTwoTone'
 import BalanceTwoToneIcon from '@mui/icons-material/BalanceTwoTone'
 import GitHubIcon from '@mui/icons-material/GitHub'
+import BugReportTwoToneIcon from '@mui/icons-material/BugReportTwoTone'
 
 type IProps = {
   open: boolean
@@ -64,6 +65,16 @@ const About: React.FC<IProps> = ({ open, onClose }) => {
             <Link>
               <BalanceTwoToneIcon />
               GPL-3.0 License
+            </Link>
+
+            <Divider
+              orientation={'vertical'}
+              style={{ margin: '0 8px' }}
+            />
+
+            <Link>
+              <BugReportTwoToneIcon />
+              Bug report
             </Link>
           </div>
         </div>
