@@ -16,6 +16,8 @@ func init() {
 	if _, err := os.Stat("config.json"); os.IsNotExist(err) {
 		viper.SetDefault("theme", "light")
 		viper.SetDefault("game_path", "")
+		viper.SetDefault("mods", []ModManifestJson{})
+		viper.SetDefault("smapi_version", "")
 
 		err := viper.ReadInConfig()
 		if err != nil {

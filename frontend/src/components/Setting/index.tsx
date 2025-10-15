@@ -54,7 +54,9 @@ const Setting: React.FC<IProps> = ({ open, onClose }) => {
     const { success, message, path } = await onSaveGamePath()
 
     if (success) {
-      snackbar.show(`游戏所在路径已设置为: ${path}`, {
+      setGamePath(path)
+
+      snackbar.show(`游戏目录已设置为: ${path}`, {
         showIcon: true,
         color: 'success',
         variant: 'soft',

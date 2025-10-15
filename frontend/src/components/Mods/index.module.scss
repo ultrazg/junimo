@@ -1,5 +1,5 @@
 .mods-wrapper {
   width: 100vw;
   height: calc(100vh - 3rem);
-  background: rgba(255, 192, 203, 0.1);
+  overflow-y: auto;
 }

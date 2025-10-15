@@ -1,8 +1,10 @@
 package backend
 
 type Config struct {
-	Theme    string `json:"theme"`
-	GamePath string `json:"game_path"`
+	Theme        string            `json:"theme"`
+	GamePath     string            `json:"game_path"`
+	Mods         []ModManifestJson `json:"mods"`
+	SMAPIVersion string            `json:"smapi_version"`
 }
 
 type SaveGamePathResultFlag struct {
@@ -47,4 +49,9 @@ type ModManifestJson struct {
 	UniqueID          string   `json:"uniqueID"`
 	EntryDll          string   `json:"entryDll"`
 	UpdateKeys        []string `json:"updateKeys"`
+}
+
+type LoadModsOptions struct {
+	Mods  []ModManifestJson `json:"mods"`
+	Total int               `json:"total"`
 }

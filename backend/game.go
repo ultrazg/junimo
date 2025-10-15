@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/tidwall/gjson"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -80,33 +81,105 @@ func (a *App) LoadMods() {
 		return
 	}
 
+	var modsConfig []ModManifestJson
+
 	for _, mod := range mods {
 		if mod.IsDir() {
-			findModManifestFile(filepath.Join(modsPath, mod.Name()))
+			modManifestPath := findModManifestFile(filepath.Join(modsPath, mod.Name()))
+			if modManifestPath != "" {
+				modManifest, err := parseManifestFile(a, modManifestPath)
+				if err != nil {
+					log.Printf("解析ModManifest文件 %s 失败: %v", modManifestPath, err)
+
+					SnackbarShow(a.ctx, &SnackbarShowOptions{
+						Message:  fmt.Sprintf("解析ModManifest文件 %s 失败: %v", modManifestPath, err),
+						ShowIcon: true,
+						Color:    SnackbarColorDanger,
+						Variant:  SnackbarVariantSoft,
+					})
+
+					continue
+				}
+
+				modsConfig = append(modsConfig, modManifest)
+			}
 		}
 	}
+
+	a.UpdateConfig("mods", modsConfig)
+
+	runtime.EventsEmit(a.ctx, "loadMods", LoadModsOptions{
+		Mods:  modsConfig,
+		Total: len(modsConfig),
+	})
+
+	runtime.WindowSetTitle(a.ctx, fmt.Sprintf("Junimo - 已加载 %d 个 Mod - SMAPI 版本：v%s", len(modsConfig), a.ReadConfig("smapi_version")))
+
+	SnackbarShow(a.ctx, &SnackbarShowOptions{
+		Message:  fmt.Sprintf("成功加载 %d 个 Mod", len(modsConfig)),
+		ShowIcon: true,
+		Color:    SnackbarColorSuccess,
+		Variant:  SnackbarVariantSoft,
+	})
 }
 
-func findModManifestFile(path string) {
+func findModManifestFile(path string) string {
 	manifestFilePath := filepath.Join(path, ModManifestFileName)
-	if _, err := os.Stat(manifestFilePath); os.IsNotExist(err) {
 
-		dirs, err := os.ReadDir(path)
-		if err != nil {
-			log.Printf("读取目录 %s 失败: %v", path, err)
-
-			return
-		}
-
-		for _, dir := range dirs {
-
-			if dir.IsDir() {
-				findModManifestFile(filepath.Join(path, dir.Name()))
-			}
-
-		}
-	} else {
-		// ...
-		fmt.Printf("√ 目录 %s 中存在 %s 文件\n", path, ModManifestFileName)
+	if _, err := os.Stat(manifestFilePath); err == nil {
+		return path
 	}
+
+	dirs, err := os.ReadDir(path)
+	if err != nil {
+		log.Printf("读取目录 %s 失败: %v", path, err)
+		return ""
+	}
+
+	for _, dir := range dirs {
+		if dir.IsDir() {
+			subDirPath := filepath.Join(path, dir.Name())
+
+			if result := findModManifestFile(subDirPath); result != "" {
+				return result
+			}
+		}
+	}
+
+	return ""
+}
+
+func parseManifestFile(a *App, path string) (ModManifestJson, error) {
+	manifestFile := filepath.Join(path, ModManifestFileName)
+
+	jsonData, err := os.ReadFile(manifestFile)
+	if err != nil {
+		log.Printf("读取文件 %s 失败: %v", manifestFile, err)
+		return ModManifestJson{}, err
+	}
+
+	jsonStr := string(jsonData)
+
+	modManifest := ModManifestJson{
+		Name:              gjson.Get(jsonStr, "Name").String(),
+		Author:            gjson.Get(jsonStr, "Author").String(),
+		Version:           gjson.Get(jsonStr, "Version").String(),
+		MinimumApiVersion: gjson.Get(jsonStr, "MinimumApiVersion").String(),
+		Description:       gjson.Get(jsonStr, "Description").String(),
+		UniqueID:          gjson.Get(jsonStr, "UniqueID").String(),
+		EntryDll:          gjson.Get(jsonStr, "EntryDll").String(),
+	}
+
+	updateKeys := gjson.Get(jsonStr, "UpdateKeys")
+	if updateKeys.Exists() && updateKeys.IsArray() {
+		for _, v := range updateKeys.Array() {
+			modManifest.UpdateKeys = append(modManifest.UpdateKeys, v.String())
+		}
+	}
+
+	if gjson.Get(jsonStr, "Name").String() == "Console Commands" {
+		a.UpdateConfig("smapi_version", gjson.Get(jsonStr, "Version").String())
+	}
+
+	return modManifest, nil
 }
