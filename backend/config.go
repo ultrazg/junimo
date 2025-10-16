@@ -21,15 +21,15 @@ func init() {
 
 		err := viper.ReadInConfig()
 		if err != nil {
-			fmt.Printf("Error reading config file: %v\n", err)
+			fmt.Printf("读取配置文件失败: %v\n", err)
 			if err = viper.SafeWriteConfigAs("config.json"); err != nil {
-				fmt.Printf("Error writing config file: %v\n", err)
+				fmt.Printf("写入配置文件失败: %v\n", err)
 			}
 		}
 	} else {
 		err := viper.ReadInConfig()
 		if err != nil {
-			fmt.Printf("Error reading config file: %v\n", err)
+			fmt.Printf("读取配置文件失败: %v\n", err)
 		}
 	}
 }

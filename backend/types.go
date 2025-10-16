@@ -49,6 +49,9 @@ type ModManifestJson struct {
 	UniqueID          string   `json:"uniqueID"`
 	EntryDll          string   `json:"entryDll"`
 	UpdateKeys        []string `json:"updateKeys"`
+	ManifestPath      string   `json:"manifestPath"`
+	ModPath           string   `json:"modPath"`
+	ConfigPath        string   `json:"configPath"`
 }
 
 type LoadModsOptions struct {

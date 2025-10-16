@@ -19,14 +19,15 @@ func main() {
 
 	err := wails.Run(&options.App{
 		Title:     "Junimo",
-		Width:     900,
+		Width:     1000,
 		Height:    600,
-		MinWidth:  900,
+		MinWidth:  1000,
 		MinHeight: 600,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
-		OnStartup: app.Startup,
+		OnStartup:  app.Startup,
+		OnDomReady: app.DomReady,
 		Bind: []interface{}{
 			app,
 		},

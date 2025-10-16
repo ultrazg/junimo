@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/tidwall/gjson"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -12,6 +13,7 @@ import (
 
 const SMAPIExecFileName = "StardewModdingAPI.exe"
 const ModManifestFileName = "manifest.json"
+const ModConfigFileName = "config.json"
 
 func (a *App) SaveGamePath() SaveGamePathResultFlag {
 	options := runtime.OpenDialogOptions{
@@ -69,13 +71,14 @@ func (a *App) LoadMods() {
 
 	mods, err := os.ReadDir(modsPath)
 	if err != nil {
-		log.Printf("读取Mods目录失败: %v", err)
+		log.Printf("读取 Mods 目录失败: %v", err)
 
 		SnackbarShow(a.ctx, &SnackbarShowOptions{
-			Message:  fmt.Sprintf("读取Mods目录失败: %v", err),
-			ShowIcon: true,
-			Color:    SnackbarColorDanger,
-			Variant:  SnackbarVariantSoft,
+			Message:          fmt.Sprintf("无法读取 Mods 目录，请先在设置中配置或检查游戏目录: %v", err),
+			ShowIcon:         true,
+			Color:            SnackbarColorDanger,
+			Variant:          SnackbarVariantSoft,
+			AutoHideDuration: 6000,
 		})
 
 		return
@@ -89,10 +92,10 @@ func (a *App) LoadMods() {
 			if modManifestPath != "" {
 				modManifest, err := parseManifestFile(a, modManifestPath)
 				if err != nil {
-					log.Printf("解析ModManifest文件 %s 失败: %v", modManifestPath, err)
+					log.Printf("解析 ModManifest 文件 %s 失败: %v", modManifestPath, err)
 
 					SnackbarShow(a.ctx, &SnackbarShowOptions{
-						Message:  fmt.Sprintf("解析ModManifest文件 %s 失败: %v", modManifestPath, err),
+						Message:  fmt.Sprintf("解析 ModManifest 文件 %s 失败: %v", modManifestPath, err),
 						ShowIcon: true,
 						Color:    SnackbarColorDanger,
 						Variant:  SnackbarVariantSoft,
@@ -151,15 +154,18 @@ func findModManifestFile(path string) string {
 
 func parseManifestFile(a *App, path string) (ModManifestJson, error) {
 	manifestFile := filepath.Join(path, ModManifestFileName)
-
 	jsonData, err := os.ReadFile(manifestFile)
 	if err != nil {
 		log.Printf("读取文件 %s 失败: %v", manifestFile, err)
 		return ModManifestJson{}, err
 	}
+	var configPath string
+
+	if _, err := os.Stat(filepath.Join(path, ModConfigFileName)); err == nil {
+		configPath = filepath.Join(path, ModConfigFileName)
+	}
 
 	jsonStr := string(jsonData)
-
 	modManifest := ModManifestJson{
 		Name:              gjson.Get(jsonStr, "Name").String(),
 		Author:            gjson.Get(jsonStr, "Author").String(),
@@ -168,8 +174,10 @@ func parseManifestFile(a *App, path string) (ModManifestJson, error) {
 		Description:       gjson.Get(jsonStr, "Description").String(),
 		UniqueID:          gjson.Get(jsonStr, "UniqueID").String(),
 		EntryDll:          gjson.Get(jsonStr, "EntryDll").String(),
+		ManifestPath:      trimToFirstSubdirUnderMods(path),
+		ModPath:           path,
+		ConfigPath:        configPath,
 	}
-
 	updateKeys := gjson.Get(jsonStr, "UpdateKeys")
 	if updateKeys.Exists() && updateKeys.IsArray() {
 		for _, v := range updateKeys.Array() {
@@ -177,9 +185,27 @@ func parseManifestFile(a *App, path string) (ModManifestJson, error) {
 		}
 	}
 
+	//
 	if gjson.Get(jsonStr, "Name").String() == "Console Commands" {
 		a.UpdateConfig("smapi_version", gjson.Get(jsonStr, "Version").String())
 	}
 
 	return modManifest, nil
+}
+
+func trimToFirstSubdirUnderMods(path string) string {
+	cleanPath := filepath.Clean(path)
+	parts := strings.Split(cleanPath, string(filepath.Separator))
+
+	for i, part := range parts {
+		if strings.EqualFold(part, "Mods") {
+			if i+1 < len(parts) {
+				return filepath.Join(parts[:i+2]...)
+			}
+
+			return filepath.Join(parts[:i+1]...)
+		}
+	}
+
+	return cleanPath
 }

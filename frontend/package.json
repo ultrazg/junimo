@@ -14,7 +14,9 @@
     "@mui/icons-material": "^6.0.0",
     "@mui/joy": "5.0.0-beta.52",
     "@types/node": "^24.5.2",
+    "ace-builds": "^1.43.3",
     "react": "^18.2.0",
+    "react-ace": "^14.0.1",
     "react-dom": "^18.2.0",
     "sass": "^1.77.6"
   },

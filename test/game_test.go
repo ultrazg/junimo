@@ -1,16 +1,21 @@
-package backend
+package test
 
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
+
+	"github.com/ultrazg/junimo/backend"
 )
 
 const gamePath = "D:\\steam\\steamapps\\common\\Stardew Valley"
 const modManifestFileName = "manifest.json"
 const modMainDir = "D:\\steam\\steamapps\\common\\Stardew Valley\\Mods\\LookupAnything"
+const modPath = "D:\\horizon\\Mods\\Automate 2.0.7-1063-2-0-7-1713157091\\Automate"
 
 func TestLoadMods(t *testing.T) {
 	modsPath := filepath.Join(gamePath, "Mods")
@@ -53,7 +58,7 @@ func findModManifestFileTest(t *testing.T, path string) {
 func TestLoadModManifest(t *testing.T) {
 	manifestFile := filepath.Join(modMainDir, modManifestFileName)
 
-	var modManifest ModManifestJson
+	var modManifest backend.ModManifestJson
 
 	jsonData, err := os.ReadFile(manifestFile)
 	if err != nil {
@@ -76,4 +81,20 @@ func TestLoadModManifest(t *testing.T) {
 	t.Logf("Mod Author: %s", modManifest.Author)
 	t.Logf("Mod Version: %s", modManifest.Version)
 	t.Logf("Mod Description: %s", modManifest.Description)
+}
+
+func TestTrimToFirstSubdirUnderMods(t *testing.T) {
+	parts := strings.Split(modPath, string(filepath.Separator))
+
+	for i, part := range parts {
+		if strings.EqualFold(part, "Mods") {
+			if i+1 < len(parts) {
+				fmt.Println(filepath.Join(parts[:i+2]...))
+			}
+
+			fmt.Println(filepath.Join(parts[:i+1]...))
+		}
+	}
+
+	fmt.Println(modPath)
 }
