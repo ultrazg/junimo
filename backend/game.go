@@ -174,8 +174,8 @@ func parseManifestFile(a *App, path string) (ModManifestJson, error) {
 		Description:       gjson.Get(jsonStr, "Description").String(),
 		UniqueID:          gjson.Get(jsonStr, "UniqueID").String(),
 		EntryDll:          gjson.Get(jsonStr, "EntryDll").String(),
-		ManifestPath:      trimToFirstSubdirUnderMods(path),
-		ModPath:           path,
+		ManifestPath:      path,
+		ModPath:           trimToFirstSubdirUnderMods(path),
 		ConfigPath:        configPath,
 	}
 	updateKeys := gjson.Get(jsonStr, "UpdateKeys")
@@ -200,10 +200,10 @@ func trimToFirstSubdirUnderMods(path string) string {
 	for i, part := range parts {
 		if strings.EqualFold(part, "Mods") {
 			if i+1 < len(parts) {
-				return filepath.Join(parts[:i+2]...)
+				return FixDrivePath(filepath.Join(parts[:i+2]...))
 			}
 
-			return filepath.Join(parts[:i+1]...)
+			return FixDrivePath(filepath.Join(parts[:i+1]...))
 		}
 	}
 

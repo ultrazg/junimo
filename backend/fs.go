@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 )
 
 func openDir(path string) error {
@@ -64,4 +65,12 @@ func (a *App) ReadModConfigFile(path string) string {
 	}
 
 	return string(configStr)
+}
+
+func FixDrivePath(p string) string {
+	if len(p) >= 2 && p[1] == ':' && (len(p) == 2 || (len(p) > 2 && p[2] != '\\' && p[2] != '/')) {
+		return p[:2] + string(filepath.Separator) + p[2:]
+	}
+
+	return p
 }
