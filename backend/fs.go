@@ -53,6 +53,47 @@ func (a *App) OpenModDir(path string) {
 	}
 }
 
+func (a *App) RemoveModDir(path string) {
+	fmt.Println("删除 Mod 目录:", path)
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		fmt.Printf("Mod 目录 %s 不存在\n", path)
+
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:  fmt.Sprintf("Mod 目录 %s 不存在，删除失败", path),
+			ShowIcon: true,
+			Color:    SnackbarColorDanger,
+			Variant:  SnackbarVariantSoft,
+		})
+
+		return
+	}
+
+	err := os.RemoveAll(path)
+	if err != nil {
+		fmt.Printf("删除 Mod 目录 %s 失败: %v\n", path, err)
+
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:  fmt.Sprintf("删除 Mod 失败：%v", err),
+			ShowIcon: true,
+			Color:    SnackbarColorDanger,
+			Variant:  SnackbarVariantSoft,
+		})
+
+		return
+	}
+
+	fmt.Printf("目录 %s 删除成功\n", path)
+
+	SnackbarShow(a.ctx, &SnackbarShowOptions{
+		Message:  "成功删除",
+		ShowIcon: true,
+		Color:    SnackbarColorSuccess,
+		Variant:  SnackbarVariantSoft,
+	})
+
+	a.LoadMods(false)
+}
+
 func (a *App) ReadModConfigFile(path string) string {
 	configStr, err := os.ReadFile(path)
 	if err != nil {

@@ -36,8 +36,10 @@ const About: React.FC<IProps> = ({ open, onClose }) => {
 
           <div>
             <Typography>
-              {APP_NAME} 是星露谷物语（<Link>Stardew Valley</Link>）Mod
-              管理软件，使用 <Link>wails</Link> + <Link>react</Link> 开发
+              {APP_NAME} 是星露谷物语（<Link>Stardew Valley</Link>）Mod 管理软件
+            </Typography>
+            <Typography>
+              使用 <Link>wails</Link> + <Link>react</Link> 构建
             </Typography>
           </div>
 

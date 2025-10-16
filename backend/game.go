@@ -65,7 +65,7 @@ func verifyGamePath(path string) bool {
 	return true
 }
 
-func (a *App) LoadMods() {
+func (a *App) LoadMods(showSnackbar bool) {
 	gamePath := a.ReadConfig("game_path")
 	modsPath := filepath.Join(gamePath.(string), "Mods")
 
@@ -118,12 +118,14 @@ func (a *App) LoadMods() {
 
 	runtime.WindowSetTitle(a.ctx, fmt.Sprintf("Junimo - 已加载 %d 个 Mod - SMAPI 版本：v%s", len(modsConfig), a.ReadConfig("smapi_version")))
 
-	SnackbarShow(a.ctx, &SnackbarShowOptions{
-		Message:  fmt.Sprintf("成功加载 %d 个 Mod", len(modsConfig)),
-		ShowIcon: true,
-		Color:    SnackbarColorSuccess,
-		Variant:  SnackbarVariantSoft,
-	})
+	if showSnackbar {
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:  fmt.Sprintf("成功加载 %d 个 Mod", len(modsConfig)),
+			ShowIcon: true,
+			Color:    SnackbarColorSuccess,
+			Variant:  SnackbarVariantSoft,
+		})
+	}
 }
 
 func findModManifestFile(path string) string {

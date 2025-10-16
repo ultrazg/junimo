@@ -5,6 +5,7 @@ frontend/dist
 .Thumbs.db
 wailsjs
 config.json
+test
 
 # Logs
 logs

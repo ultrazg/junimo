@@ -22,7 +22,7 @@ func (a *App) DomReady(ctx context.Context) {
 	gamePath := a.ReadConfig("game_path").(string)
 
 	if gamePath != "" {
-		a.LoadMods()
+		a.LoadMods(true)
 	}
 }
 

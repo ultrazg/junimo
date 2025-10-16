@@ -13,7 +13,7 @@ const MenuBar = () => {
   const [settingOpen, setSettingOpen] = useState<boolean>(false)
 
   const onLoadMods = () => {
-    LoadMods().then()
+    LoadMods(true).then()
   }
 
   return (

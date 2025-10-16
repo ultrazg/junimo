@@ -8,7 +8,7 @@ import DoDisturbOnOutlinedIcon from '@mui/icons-material/DoDisturbOnOutlined'
 import BuildCircleOutlinedIcon from '@mui/icons-material/BuildCircleOutlined'
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined'
 import FolderOpenOutlinedIcon from '@mui/icons-material/FolderOpenOutlined'
-import { ModConfigModal } from '@/components'
+import { ModConfigModal, DeleteModModal } from '@/components'
 
 type ModManifestType = {
   name: string
@@ -25,7 +25,6 @@ type ModManifestType = {
 
 const Mods = () => {
   const [mods, setMods] = useState<ModManifestType[]>()
-  const [total, setTotal] = useState<number>(0)
   const [modConfigModal, setModConfigModal] = useState<{
     modName: string
     open: boolean
@@ -35,13 +34,19 @@ const Mods = () => {
     open: false,
     configStr: '',
   })
+  const [deleteModModal, setDeleteModModal] = useState<{
+    open: boolean
+    path: string
+  }>({
+    open: false,
+    path: '',
+  })
 
   useEffect(() => {
     const onSyncMods = EventsOn(
       'loadMods',
       (data: { mods: ModManifestType[]; total: number }) => {
         setMods(data.mods)
-        setTotal(data.total)
       },
     )
 
@@ -161,6 +166,9 @@ const Mods = () => {
                     variant={'plain'}
                     size={'sm'}
                     color={'danger'}
+                    onClick={() => {
+                      setDeleteModModal({ open: true, path: mod.modPath })
+                    }}
                   >
                     <DeleteOutlineOutlinedIcon />
                   </IconButton>
@@ -178,6 +186,12 @@ const Mods = () => {
         onClose={() =>
           setModConfigModal({ modName: '', open: false, configStr: '' })
         }
+      />
+
+      <DeleteModModal
+        path={deleteModModal.path}
+        open={deleteModModal.open}
+        onClose={() => setDeleteModModal({ open: false, path: '' })}
       />
     </div>
   )

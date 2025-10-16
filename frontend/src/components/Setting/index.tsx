@@ -57,7 +57,7 @@ const Setting: React.FC<IProps> = ({ open, onClose }) => {
     if (success) {
       setGamePath(path)
 
-      LoadMods().then()
+      LoadMods(true).then()
 
       snackbar.show(`游戏目录已设置为: ${path}`, {
         showIcon: true,
