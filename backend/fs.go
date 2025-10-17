@@ -2,9 +2,12 @@ package backend
 
 import (
 	"fmt"
+	"io"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"time"
 )
 
 func openDir(path string) error {
@@ -114,4 +117,128 @@ func FixDrivePath(p string) string {
 	}
 
 	return p
+}
+
+func (a *App) BackupModDir() {
+	gamePath := a.ReadConfig("game_path").(string)
+	if gamePath == "" {
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:  "无法备份，请先在设置中配置或检查游戏目录",
+			ShowIcon: true,
+			Color:    SnackbarColorDanger,
+			Variant:  SnackbarVariantSoft,
+		})
+
+		return
+	}
+
+	backupPath := filepath.Join(gamePath, "junimo_backup")
+
+	if _, err := os.Stat(backupPath); os.IsNotExist(err) {
+		err := os.Mkdir(backupPath, fs.FileMode(0755))
+		if err != nil {
+			SnackbarShow(a.ctx, &SnackbarShowOptions{
+				Message:  fmt.Sprintf("创建备份目录失败: %v", err),
+				ShowIcon: true,
+				Color:    SnackbarColorDanger,
+				Variant:  SnackbarVariantSoft,
+			})
+
+			return
+		}
+	}
+
+	modDir := filepath.Join(gamePath, "Mods")
+
+	if _, err := os.Stat(modDir); os.IsNotExist(err) {
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:  "Mods 目录不存在，无法备份",
+			ShowIcon: true,
+			Color:    SnackbarColorWarning,
+			Variant:  SnackbarVariantSoft,
+		})
+		return
+	}
+
+	timeSuffix := time.Now().Format("20060102_150405")
+	targetDir := filepath.Join(backupPath, "Mods_backup_"+timeSuffix)
+
+	err := copyDir(modDir, targetDir)
+	if err != nil {
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:  fmt.Sprintf("备份失败: %v", err),
+			ShowIcon: true,
+			Color:    SnackbarColorDanger,
+			Variant:  SnackbarVariantSoft,
+		})
+		return
+	}
+
+	SnackbarShow(a.ctx, &SnackbarShowOptions{
+		Message:  "Mods 目录已成功备份！",
+		ShowIcon: true,
+		Color:    SnackbarColorSuccess,
+		Variant:  SnackbarVariantSoft,
+	})
+}
+
+func copyDir(src string, dst string) error {
+	srcInfo, err := os.Stat(src)
+	if err != nil {
+		return err
+	}
+
+	err = os.MkdirAll(dst, srcInfo.Mode())
+	if err != nil {
+		return err
+	}
+
+	entries, err := os.ReadDir(src)
+	if err != nil {
+		return err
+	}
+
+	for _, entry := range entries {
+		srcPath := filepath.Join(src, entry.Name())
+		dstPath := filepath.Join(dst, entry.Name())
+
+		if entry.IsDir() {
+			err = copyDir(srcPath, dstPath)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = copyFile(srcPath, dstPath)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func copyFile(src, dst string) error {
+	srcFile, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer srcFile.Close()
+
+	srcInfo, err := srcFile.Stat()
+	if err != nil {
+		return err
+	}
+
+	dstFile, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer dstFile.Close()
+
+	_, err = io.Copy(dstFile, srcFile)
+	if err != nil {
+		return err
+	}
+
+	return os.Chmod(dst, srcInfo.Mode())
 }

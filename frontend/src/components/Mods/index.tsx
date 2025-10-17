@@ -19,6 +19,7 @@ type ModManifestType = {
   uniqueID: string
   entryDll: string
   updateKeys: string[]
+  manifestPath: string
   modPath: string
   configPath: string
 }
@@ -150,7 +151,7 @@ const Mods = () => {
                     variant={'plain'}
                     size={'sm'}
                     onClick={() => {
-                      onOpenModDir(mod.modPath)
+                      onOpenModDir(mod.manifestPath)
                     }}
                   >
                     <FolderOpenOutlinedIcon />

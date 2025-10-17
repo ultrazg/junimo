@@ -2,6 +2,7 @@ package backend
 
 import (
 	"fmt"
+	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
@@ -47,6 +48,16 @@ func (a *App) SaveGamePath() SaveGamePathResultFlag {
 	}
 
 	a.UpdateConfig("game_path", path)
+
+	err = os.Mkdir(filepath.Join(path, "junimo_backup"), fs.FileMode(0755))
+	if err != nil {
+		fmt.Printf("创建目录失败：%v \n", err)
+	}
+
+	err = os.Mkdir(filepath.Join(path, "junimo_disabled"), fs.FileMode(0755))
+	if err != nil {
+		fmt.Printf("创建目录失败：%v \n", err)
+	}
 
 	return SaveGamePathResultFlag{
 		Success: true,

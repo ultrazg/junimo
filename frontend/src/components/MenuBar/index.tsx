@@ -3,17 +3,34 @@ import { Sheet, ButtonGroup, IconButton, Typography } from '@mui/joy'
 import SettingsTwoToneIcon from '@mui/icons-material/SettingsTwoTone'
 import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone'
 import SyncTwoToneIcon from '@mui/icons-material/SyncTwoTone'
+import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined'
 import styles from './index.module.scss'
 import { About, Setting } from '@/components'
-import { LoadMods } from '@/utils'
+import { LoadMods, BackupModDir } from '@/utils'
 import SMAPI_ICON from '@/assets/images/smapi_icon.png'
 
 const MenuBar = () => {
   const [aboutOpen, setAboutOpen] = useState<boolean>(false)
   const [settingOpen, setSettingOpen] = useState<boolean>(false)
+  const [syncLoading, setSyncLoading] = useState<boolean>(false)
+  const [backupLoading, setBackupLoading] = useState<boolean>(false)
 
   const onLoadMods = () => {
-    LoadMods(true).then()
+    setSyncLoading(true)
+    LoadMods(true)
+      .then()
+      .finally(() => {
+        setSyncLoading(false)
+      })
+  }
+
+  const onBackupMod = () => {
+    setBackupLoading(true)
+    BackupModDir()
+      .then()
+      .finally(() => {
+        setBackupLoading(false)
+      })
   }
 
   return (
@@ -27,7 +44,7 @@ const MenuBar = () => {
           <IconButton>
             <img
               src={SMAPI_ICON}
-              alt={SMAPI_ICON}
+              alt={'SMAPI_ICON'}
             />
 
             <Typography
@@ -48,13 +65,23 @@ const MenuBar = () => {
             </Typography>
           </IconButton>
 
-          <IconButton onClick={() => onLoadMods()}>
+          <IconButton onClick={() => onLoadMods()} loading={syncLoading}>
             <SyncTwoToneIcon />
             <Typography
               className={styles['button-text']}
               level="title-md"
             >
               同步 Mod 列表
+            </Typography>
+          </IconButton>
+
+          <IconButton onClick={() => onBackupMod()} loading={backupLoading}>
+            <ContentCopyOutlinedIcon />
+            <Typography
+              className={styles['button-text']}
+              level="title-md"
+            >
+              备份 Mod 文件
             </Typography>
           </IconButton>
 
