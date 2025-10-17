@@ -110,6 +110,27 @@ func (a *App) ReadModConfigFile(path string) string {
 	return string(configStr)
 }
 
+func (a *App) UpdateModConfigFile(path, configStr string) {
+	err := os.WriteFile(path, []byte(configStr), 0644)
+	if err != nil {
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:  fmt.Sprintf("写入 Mod 配置文件失败: %v", err),
+			ShowIcon: true,
+			Color:    SnackbarColorDanger,
+			Variant:  SnackbarVariantSoft,
+		})
+
+		return
+	}
+
+	SnackbarShow(a.ctx, &SnackbarShowOptions{
+		Message:  "成功更新 Mod 配置文件",
+		ShowIcon: true,
+		Color:    SnackbarColorSuccess,
+		Variant:  SnackbarVariantSoft,
+	})
+}
+
 func FixDrivePath(p string) string {
 	if len(p) >= 2 && p[1] == ':' && (len(p) == 2 || (len(p) > 2 && p[2] != '\\' && p[2] != '/')) {
 		return p[:2] + string(filepath.Separator) + p[2:]

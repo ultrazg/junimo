@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Modal } from '@/components'
-import { ReadConfig } from '@/utils'
+import { ReadConfig, UpdateModConfigFile } from '@/utils'
 import AceEditor from 'react-ace'
 import { Button, Typography } from '@mui/joy'
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined'
@@ -12,6 +12,7 @@ import 'ace-builds/src-noconflict/theme-twilight'
 
 type IProps = {
   modName: string
+  path: string
   configStr: string
   open: boolean
   onClose: () => void
@@ -19,12 +20,14 @@ type IProps = {
 
 const ModConfigModal: React.FC<IProps> = ({
   modName,
+  path,
   configStr,
   open,
   onClose,
 }) => {
   const [theme, setTheme] = useState<'light' | 'dark'>('light')
   const [configValue, setConfigValue] = useState<string>('')
+  const [submitLoading, setSubmitLoading] = useState<boolean>(false)
 
   const init = () => {
     ReadConfig('theme').then((res: 'light' | 'dark') => {
@@ -36,6 +39,15 @@ const ModConfigModal: React.FC<IProps> = ({
 
   const onChangeConfigValue = (value: string) => {
     setConfigValue(value)
+  }
+
+  const onUpdateConfig = () => {
+    setSubmitLoading(true)
+    UpdateModConfigFile(path, configValue)
+      .then()
+      .finally(() => {
+        setSubmitLoading(false)
+      })
   }
 
   useEffect(() => {
@@ -78,6 +90,8 @@ const ModConfigModal: React.FC<IProps> = ({
             <Button
               size={'sm'}
               variant={'soft'}
+              loading={submitLoading}
+              onClick={onUpdateConfig}
             >
               <SaveOutlinedIcon />
               修改配置

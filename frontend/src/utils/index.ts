@@ -10,6 +10,7 @@ import {
   ReadModConfigFile,
   RemoveModDir,
   BackupModDir,
+  UpdateModConfigFile,
 } from 'wailsjs/go/backend/App'
 import { EventsOn } from 'wailsjs/runtime'
 import { onSaveGamePath } from './fs'
@@ -32,4 +33,5 @@ export {
   ReadModConfigFile,
   RemoveModDir,
   BackupModDir,
+  UpdateModConfigFile,
 }

@@ -30,10 +30,12 @@ const Mods = () => {
     modName: string
     open: boolean
     configStr: string
+    path: string
   }>({
     modName: '',
     open: false,
     configStr: '',
+    path: ''
   })
   const [deleteModModal, setDeleteModModal] = useState<{
     open: boolean
@@ -66,6 +68,7 @@ const Mods = () => {
         modName: modName,
         open: true,
         configStr,
+        path: configPath
       })
     })
   }
@@ -182,10 +185,11 @@ const Mods = () => {
 
       <ModConfigModal
         modName={modConfigModal.modName}
+        path={modConfigModal.path}
         configStr={modConfigModal.configStr}
         open={modConfigModal.open}
         onClose={() =>
-          setModConfigModal({ modName: '', open: false, configStr: '' })
+          setModConfigModal({ modName: '', open: false, configStr: '', path: '' })
         }
       />
 
