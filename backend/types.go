@@ -1,12 +1,5 @@
 package backend
 
-type Config struct {
-	Theme        string            `json:"theme"`
-	GamePath     string            `json:"game_path"`
-	Mods         []ModManifestJson `json:"mods"`
-	SMAPIVersion string            `json:"smapi_version"`
-}
-
 type SaveGamePathResultFlag struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`

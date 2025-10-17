@@ -52,11 +52,15 @@ func (a *App) SaveGamePath() SaveGamePathResultFlag {
 	err = os.Mkdir(filepath.Join(path, "junimo_backup"), fs.FileMode(0755))
 	if err != nil {
 		fmt.Printf("创建目录失败：%v \n", err)
+	} else {
+		a.UpdateConfig("backup_path", filepath.Join(path, "junimo_backup"))
 	}
 
 	err = os.Mkdir(filepath.Join(path, "junimo_disabled"), fs.FileMode(0755))
 	if err != nil {
 		fmt.Printf("创建目录失败：%v \n", err)
+	} else {
+		a.UpdateConfig("disabled_path", filepath.Join(path, "junimo_disabled"))
 	}
 
 	return SaveGamePathResultFlag{

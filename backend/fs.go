@@ -3,7 +3,6 @@ package backend
 import (
 	"fmt"
 	"io"
-	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -121,7 +120,9 @@ func FixDrivePath(p string) string {
 
 func (a *App) BackupModDir() {
 	gamePath := a.ReadConfig("game_path").(string)
-	if gamePath == "" {
+	backupPath := a.ReadConfig("backup_path").(string)
+
+	if gamePath == "" || backupPath == "" {
 		SnackbarShow(a.ctx, &SnackbarShowOptions{
 			Message:  "无法备份，请先在设置中配置或检查游戏目录",
 			ShowIcon: true,
@@ -130,22 +131,6 @@ func (a *App) BackupModDir() {
 		})
 
 		return
-	}
-
-	backupPath := filepath.Join(gamePath, "junimo_backup")
-
-	if _, err := os.Stat(backupPath); os.IsNotExist(err) {
-		err := os.Mkdir(backupPath, fs.FileMode(0755))
-		if err != nil {
-			SnackbarShow(a.ctx, &SnackbarShowOptions{
-				Message:  fmt.Sprintf("创建备份目录失败: %v", err),
-				ShowIcon: true,
-				Color:    SnackbarColorDanger,
-				Variant:  SnackbarVariantSoft,
-			})
-
-			return
-		}
 	}
 
 	modDir := filepath.Join(gamePath, "Mods")
@@ -157,6 +142,7 @@ func (a *App) BackupModDir() {
 			Color:    SnackbarColorWarning,
 			Variant:  SnackbarVariantSoft,
 		})
+
 		return
 	}
 
@@ -171,14 +157,16 @@ func (a *App) BackupModDir() {
 			Color:    SnackbarColorDanger,
 			Variant:  SnackbarVariantSoft,
 		})
+
 		return
 	}
 
 	SnackbarShow(a.ctx, &SnackbarShowOptions{
-		Message:  "Mods 目录已成功备份！",
-		ShowIcon: true,
-		Color:    SnackbarColorSuccess,
-		Variant:  SnackbarVariantSoft,
+		Message:          fmt.Sprintf("Mods 目录已成功备份至 %s", targetDir),
+		ShowIcon:         true,
+		Color:            SnackbarColorSuccess,
+		Variant:          SnackbarVariantSoft,
+		AutoHideDuration: 6000,
 	})
 }
 
