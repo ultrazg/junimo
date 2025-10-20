@@ -1,5 +1,7 @@
 package backend
 
+import "time"
+
 type SaveGamePathResultFlag struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
@@ -45,9 +47,16 @@ type ModManifestJson struct {
 	ManifestPath      string   `json:"manifestPath"`
 	ModPath           string   `json:"modPath"`
 	ConfigPath        string   `json:"configPath"`
+	Disabled          bool     `json:"disabled"`
 }
 
 type LoadModsOptions struct {
 	Mods  []ModManifestJson `json:"mods"`
 	Total int               `json:"total"`
+}
+
+type ListBackupDirsResult struct {
+	Name       string    `json:"name"`
+	Size       int64     `json:"size"`
+	CreateTime time.Time `json:"createTime"`
 }

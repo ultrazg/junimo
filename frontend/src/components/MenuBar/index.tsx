@@ -4,8 +4,9 @@ import SettingsTwoToneIcon from '@mui/icons-material/SettingsTwoTone'
 import InfoTwoToneIcon from '@mui/icons-material/InfoTwoTone'
 import SyncTwoToneIcon from '@mui/icons-material/SyncTwoTone'
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined'
+import SourceOutlinedIcon from '@mui/icons-material/SourceOutlined'
 import styles from './index.module.scss'
-import { About, Setting } from '@/components'
+import { About, Setting, BackupModal } from '@/components'
 import { LoadMods, BackupModDir } from '@/utils'
 import SMAPI_ICON from '@/assets/images/smapi_icon.png'
 
@@ -14,6 +15,7 @@ const MenuBar = () => {
   const [settingOpen, setSettingOpen] = useState<boolean>(false)
   const [syncLoading, setSyncLoading] = useState<boolean>(false)
   const [backupLoading, setBackupLoading] = useState<boolean>(false)
+  const [backupModalOpen, setBackupModalOpen] = useState<boolean>(false)
 
   const onLoadMods = () => {
     setSyncLoading(true)
@@ -65,7 +67,10 @@ const MenuBar = () => {
             </Typography>
           </IconButton>
 
-          <IconButton onClick={() => onLoadMods()} loading={syncLoading}>
+          <IconButton
+            onClick={() => onLoadMods()}
+            loading={syncLoading}
+          >
             <SyncTwoToneIcon />
             <Typography
               className={styles['button-text']}
@@ -75,13 +80,28 @@ const MenuBar = () => {
             </Typography>
           </IconButton>
 
-          <IconButton onClick={() => onBackupMod()} loading={backupLoading}>
+          <IconButton
+            onClick={() => onBackupMod()}
+            loading={backupLoading}
+          >
             <ContentCopyOutlinedIcon />
             <Typography
               className={styles['button-text']}
               level="title-md"
             >
               备份 Mod 文件
+            </Typography>
+          </IconButton>
+
+          <IconButton
+            onClick={() => setBackupModalOpen(true)}
+          >
+            <SourceOutlinedIcon />
+            <Typography
+              className={styles['button-text']}
+              level="title-md"
+            >
+              查看备份
             </Typography>
           </IconButton>
 
@@ -105,6 +125,11 @@ const MenuBar = () => {
       <Setting
         open={settingOpen}
         onClose={() => setSettingOpen(false)}
+      />
+
+      <BackupModal
+        open={backupModalOpen}
+        onClose={() => setBackupModalOpen(false)}
       />
     </React.Fragment>
   )

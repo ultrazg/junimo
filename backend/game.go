@@ -194,6 +194,7 @@ func parseManifestFile(a *App, path string) (ModManifestJson, error) {
 		ManifestPath:      path,
 		ModPath:           trimToFirstSubdirUnderMods(path),
 		ConfigPath:        configPath,
+		Disabled:          false,
 	}
 	updateKeys := gjson.Get(jsonStr, "UpdateKeys")
 	if updateKeys.Exists() && updateKeys.IsArray() {
@@ -225,4 +226,68 @@ func trimToFirstSubdirUnderMods(path string) string {
 	}
 
 	return cleanPath
+}
+
+func (a *App) ListBackupDirs() []ListBackupDirsResult {
+	backupPath := a.ReadConfig("backup_path").(string)
+	if backupPath == "" {
+		log.Printf("备份路径为空")
+
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:  "备份路径为空",
+			ShowIcon: true,
+			Color:    SnackbarColorWarning,
+			Variant:  SnackbarVariantSoft,
+		})
+
+		return []ListBackupDirsResult{}
+	}
+
+	dirs, err := os.ReadDir(backupPath)
+	if err != nil {
+		log.Printf("无法读取备份目录：%v", err)
+
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:          fmt.Sprintf("无法读取备份目录：%v", err),
+			ShowIcon:         true,
+			Color:            SnackbarColorDanger,
+			Variant:          SnackbarVariantSoft,
+			AutoHideDuration: 6000,
+		})
+
+		return []ListBackupDirsResult{}
+	}
+
+	if len(dirs) == 0 {
+		return []ListBackupDirsResult{}
+	}
+
+	var backupDirs []ListBackupDirsResult
+	for _, dir := range dirs {
+		if dir.IsDir() {
+			info, err := dir.Info()
+			if err != nil {
+				continue
+			}
+
+			size, err := CalcDirSize(filepath.Join(backupPath, info.Name()))
+			if err != nil {
+				log.Printf("计算备份目录 %s 大小失败: %v", info.Name(), err)
+				size = 0
+
+				continue
+			}
+
+			fmt.Printf("备份名称: %s, 大小: %d bytes, 修改时间: %v, 是否目录: %v\n",
+				info.Name(), size, info.ModTime(), info.IsDir())
+
+			backupDirs = append(backupDirs, ListBackupDirsResult{
+				Name:       info.Name(),
+				Size:       size,
+				CreateTime: info.ModTime(),
+			})
+		}
+	}
+
+	return backupDirs
 }

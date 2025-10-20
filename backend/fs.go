@@ -251,3 +251,25 @@ func copyFile(src, dst string) error {
 
 	return os.Chmod(dst, srcInfo.Mode())
 }
+
+func CalcDirSize(path string) (int64, error) {
+	var totalSize int64
+
+	err := filepath.WalkDir(path, func(entryPath string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if !d.IsDir() {
+			info, err := d.Info()
+			if err != nil {
+				return err
+			}
+			totalSize += info.Size()
+		}
+
+		return nil
+	})
+
+	return totalSize, err
+}

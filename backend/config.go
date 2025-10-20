@@ -20,6 +20,7 @@ func init() {
 		viper.SetDefault("disabled_path", "")
 		viper.SetDefault("mods", []ModManifestJson{})
 		viper.SetDefault("smapi_version", "")
+		viper.SetDefault("disabled", false)
 
 		err := viper.ReadInConfig()
 		if err != nil {
