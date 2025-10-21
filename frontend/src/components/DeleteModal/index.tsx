@@ -2,21 +2,15 @@ import React from 'react'
 import { Typography, Button } from '@mui/joy'
 import { Modal } from '@/components'
 import WarningTwoToneIcon from '@mui/icons-material/WarningTwoTone'
-import { RemoveModDir } from '@/utils'
 
 type IProps = {
-  path: string
   open: boolean
+  loading: boolean
+  onOk: () => void
   onClose: () => void
 }
 
-const DeleteModModal: React.FC<IProps> = ({ path, open, onClose }) => {
-  const onRemoveMod = () => {
-    RemoveModDir(path).then(() => {
-      onClose()
-    })
-  }
-
+const DeleteModal: React.FC<IProps> = ({ open, loading, onOk, onClose }) => {
   return (
     <React.Fragment>
       <Modal
@@ -28,7 +22,7 @@ const DeleteModModal: React.FC<IProps> = ({ path, open, onClose }) => {
           level={'body-md'}
           color={'danger'}
         >
-          确定要删除该 Mod 吗？
+          确定要执行删除操作吗？
         </Typography>
 
         <div style={{ textAlign: 'right' }}>
@@ -37,8 +31,9 @@ const DeleteModModal: React.FC<IProps> = ({ path, open, onClose }) => {
             variant={'soft'}
             color={'danger'}
             onClick={() => {
-              onRemoveMod()
+              onOk()
             }}
+            loading={loading}
           >
             <WarningTwoToneIcon style={{ marginRight: 6 }} />
             确定
@@ -49,4 +44,4 @@ const DeleteModModal: React.FC<IProps> = ({ path, open, onClose }) => {
   )
 }
 
-export default DeleteModModal
+export default DeleteModal

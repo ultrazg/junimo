@@ -4,7 +4,7 @@ import About from './About'
 import Setting from './Setting'
 import Mods from './Mods'
 import ModConfigModal from './ModConfigModal'
-import DeleteModModal from './DeleteModModal'
+import DeleteModal from './DeleteModal'
 import BackupModal from './BackupModal'
 
 export {
@@ -14,6 +14,6 @@ export {
   Setting,
   Mods,
   ModConfigModal,
-  DeleteModModal,
+  DeleteModal,
   BackupModal,
 }

@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { Table, IconButton, Tooltip } from '@mui/joy'
 import { EventsOn } from 'wailsjs/runtime'
-import { OpenModDir, ReadModConfigFile } from '@/utils'
+import { OpenModDir, ReadModConfigFile, RemoveModDir } from '@/utils'
 import styles from './index.module.scss'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import DoDisturbOnOutlinedIcon from '@mui/icons-material/DoDisturbOnOutlined'
 import BuildCircleOutlinedIcon from '@mui/icons-material/BuildCircleOutlined'
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined'
 import FolderOpenOutlinedIcon from '@mui/icons-material/FolderOpenOutlined'
-import { ModConfigModal, DeleteModModal } from '@/components'
+import { ModConfigModal, DeleteModal } from '@/components'
 
 type ModManifestType = {
   name: string
@@ -35,12 +35,14 @@ const Mods = () => {
     modName: '',
     open: false,
     configStr: '',
-    path: ''
+    path: '',
   })
-  const [deleteModModal, setDeleteModModal] = useState<{
+  const [deleteModal, setDeleteModal] = useState<{
+    loading: boolean
     open: boolean
     path: string
   }>({
+    loading: false,
     open: false,
     path: '',
   })
@@ -68,9 +70,26 @@ const Mods = () => {
         modName: modName,
         open: true,
         configStr,
-        path: configPath
+        path: configPath,
       })
     })
+  }
+
+  const onRemoveModeFunc = () => {
+    setDeleteModal({
+      ...deleteModal,
+      loading: true,
+    })
+
+    RemoveModDir(deleteModal.path)
+      .then()
+      .finally(() => {
+        setDeleteModal({
+          open: false,
+          path: '',
+          loading: false,
+        })
+      })
   }
 
   return (
@@ -171,7 +190,11 @@ const Mods = () => {
                     size={'sm'}
                     color={'danger'}
                     onClick={() => {
-                      setDeleteModModal({ open: true, path: mod.modPath })
+                      setDeleteModal({
+                        open: true,
+                        path: mod.modPath,
+                        loading: false,
+                      })
                     }}
                   >
                     <DeleteOutlineOutlinedIcon />
@@ -189,14 +212,22 @@ const Mods = () => {
         configStr={modConfigModal.configStr}
         open={modConfigModal.open}
         onClose={() =>
-          setModConfigModal({ modName: '', open: false, configStr: '', path: '' })
+          setModConfigModal({
+            modName: '',
+            open: false,
+            configStr: '',
+            path: '',
+          })
         }
       />
 
-      <DeleteModModal
-        path={deleteModModal.path}
-        open={deleteModModal.open}
-        onClose={() => setDeleteModModal({ open: false, path: '' })}
+      <DeleteModal
+        open={deleteModal.open}
+        onClose={() =>
+          setDeleteModal({ open: false, path: '', loading: false })
+        }
+        loading={deleteModal.loading}
+        onOk={onRemoveModeFunc}
       />
     </div>
   )

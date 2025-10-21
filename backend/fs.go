@@ -96,6 +96,49 @@ func (a *App) RemoveModDir(path string) {
 	a.LoadMods(false)
 }
 
+func (a *App) RemoveBackupDir(path string) {
+	backupPath := a.ReadConfig("backup_path").(string)
+	removeBackupPath := filepath.Join(backupPath, path)
+
+	fmt.Println("删除备份目录:", removeBackupPath)
+
+	if _, err := os.Stat(removeBackupPath); os.IsNotExist(err) {
+		fmt.Printf("备份目录 %s 不存在\n", removeBackupPath)
+
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:  fmt.Sprintf("备份目录 %s 不存在，删除失败", removeBackupPath),
+			ShowIcon: true,
+			Color:    SnackbarColorDanger,
+			Variant:  SnackbarVariantSoft,
+		})
+
+		return
+	}
+
+	err := os.RemoveAll(removeBackupPath)
+	if err != nil {
+		fmt.Printf("删除备份目录 %s 失败: %v\n", removeBackupPath, err)
+
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:  fmt.Sprintf("删除备份失败：%v", err),
+			ShowIcon: true,
+			Color:    SnackbarColorDanger,
+			Variant:  SnackbarVariantSoft,
+		})
+
+		return
+	}
+
+	fmt.Printf("备份 %s 删除成功\n", path)
+
+	SnackbarShow(a.ctx, &SnackbarShowOptions{
+		Message:  "成功删除",
+		ShowIcon: true,
+		Color:    SnackbarColorSuccess,
+		Variant:  SnackbarVariantSoft,
+	})
+}
+
 func (a *App) ReadModConfigFile(path string) string {
 	configStr, err := os.ReadFile(path)
 	if err != nil {
