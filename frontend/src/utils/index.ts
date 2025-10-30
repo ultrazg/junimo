@@ -13,6 +13,7 @@ import {
   BackupModDir,
   UpdateModConfigFile,
   ListBackupDirs,
+  OpenBackupDir,
 } from 'wailsjs/go/backend/App'
 import { EventsOn } from 'wailsjs/runtime'
 import { onSaveGamePath } from './fs'
@@ -38,4 +39,5 @@ export {
   BackupModDir,
   UpdateModConfigFile,
   ListBackupDirs,
+  OpenBackupDir,
 }

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Modal, DeleteModal } from '@/components'
 import { IconButton, Table, Tooltip, CircularProgress } from '@mui/joy'
-import { ListBackupDirs, RemoveBackupDir } from '@/utils'
+import { ListBackupDirs, RemoveBackupDir, OpenBackupDir } from '@/utils'
 import FolderOpenOutlinedIcon from '@mui/icons-material/FolderOpenOutlined'
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined'
 import RestoreOutlinedIcon from '@mui/icons-material/RestoreOutlined'
@@ -156,7 +156,9 @@ const BackupModal: React.FC<IProps> = ({ open, onClose }) => {
                         <IconButton
                           variant={'plain'}
                           size={'sm'}
-                          onClick={() => {}}
+                          onClick={() => {
+                            OpenBackupDir(dir.name).then()
+                          }}
                         >
                           <FolderOpenOutlinedIcon />
                         </IconButton>

@@ -55,6 +55,38 @@ func (a *App) OpenModDir(path string) {
 	}
 }
 
+func (a *App) OpenBackupDir(backupName string) {
+	backupPath := a.ReadConfig("backup_path").(string)
+	backupPath = filepath.Join(backupPath, backupName)
+
+	if _, err := os.Stat(backupPath); os.IsNotExist(err) {
+		fmt.Printf("备份目录 %s 不存在\n", backupPath)
+
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:  fmt.Sprintf("备份目录 %s 不存在，打开失败", backupPath),
+			ShowIcon: true,
+			Color:    SnackbarColorDanger,
+			Variant:  SnackbarVariantSoft,
+		})
+
+		return
+	}
+
+	err := openDir(backupPath)
+	if err != nil {
+		fmt.Printf("打开备份目录 %s 失败: %v\n", backupPath, err)
+
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:  fmt.Sprintf("打开备份目录 %s 失败: %v", backupPath, err),
+			ShowIcon: true,
+			Color:    SnackbarColorDanger,
+			Variant:  SnackbarVariantSoft,
+		})
+
+		return
+	}
+}
+
 func (a *App) RemoveModDir(path string) {
 	fmt.Println("删除 Mod 目录:", path)
 	if _, err := os.Stat(path); os.IsNotExist(err) {
