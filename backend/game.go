@@ -124,7 +124,7 @@ func (a *App) LoadEnabledMods(showSnackbar bool) {
 		}
 	}
 
-	runtime.EventsEmit(a.ctx, "loadActiveMods", LoadModsOptions{
+	runtime.EventsEmit(a.ctx, "LoadEnabledMods", LoadModsOptions{
 		Mods:  modsConfig,
 		Total: len(modsConfig),
 	})

@@ -9,7 +9,7 @@ import {
   onSaveGamePath,
   OpenGameDir,
   OpenAppDir,
-  LoadActiveMods,
+  LoadEnabledMods,
 } from '@/utils'
 import { Button, Radio, RadioGroup, Typography, useColorScheme } from '@mui/joy'
 import styles from './index.module.scss'
@@ -57,7 +57,7 @@ const Setting: React.FC<IProps> = ({ open, onClose }) => {
     if (success) {
       setGamePath(path)
 
-      LoadActiveMods(true).then()
+      LoadEnabledMods(true).then()
 
       snackbar.show(`游戏目录已设置为: ${path}`, {
         showIcon: true,

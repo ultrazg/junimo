@@ -27,7 +27,7 @@ const Mods = () => {
 
   useEffect(() => {
     const onSyncMods = EventsOn(
-      'loadActiveMods',
+      'LoadEnabledMods',
       (data: { mods: ModManifestType[]; total: number }) => {
         setEnabledMods(data.mods)
         setEnabledModsTotal(data.total)

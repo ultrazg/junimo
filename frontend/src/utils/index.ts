@@ -3,7 +3,7 @@ import { APP_NAME, APP_VERSION } from './env'
 import {
   ReadConfig,
   UpdateConfig,
-  LoadActiveMods,
+  LoadEnabledMods,
   OpenGameDir,
   OpenAppDir,
   OpenModDir,
@@ -28,7 +28,7 @@ export {
   UpdateConfig,
   onSaveGamePath,
   snackbar,
-  LoadActiveMods,
+  LoadEnabledMods,
   EventsOn,
   OpenGameDir,
   OpenAppDir,
