@@ -7,7 +7,7 @@ import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined'
 import SourceOutlinedIcon from '@mui/icons-material/SourceOutlined'
 import styles from './index.module.scss'
 import { About, Setting, BackupModal } from '@/components'
-import { LoadMods, BackupModDir } from '@/utils'
+import { LoadActiveMods, BackupModDir } from '@/utils'
 import SMAPI_ICON from '@/assets/images/smapi_icon.png'
 
 const MenuBar = () => {
@@ -19,7 +19,7 @@ const MenuBar = () => {
 
   const onLoadMods = () => {
     setSyncLoading(true)
-    LoadMods(true)
+    LoadActiveMods(true)
       .then()
       .finally(() => {
         setSyncLoading(false)
@@ -76,7 +76,7 @@ const MenuBar = () => {
               className={styles['button-text']}
               level="title-md"
             >
-              同步 Mod 列表
+              刷新 Mod
             </Typography>
           </IconButton>
 
@@ -89,13 +89,11 @@ const MenuBar = () => {
               className={styles['button-text']}
               level="title-md"
             >
-              备份 Mod 文件
+              备份 Mod
             </Typography>
           </IconButton>
 
-          <IconButton
-            onClick={() => setBackupModalOpen(true)}
-          >
+          <IconButton onClick={() => setBackupModalOpen(true)}>
             <SourceOutlinedIcon />
             <Typography
               className={styles['button-text']}

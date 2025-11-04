@@ -125,7 +125,7 @@ func (a *App) RemoveModDir(path string) {
 		Variant:  SnackbarVariantSoft,
 	})
 
-	a.LoadMods(false)
+	a.LoadEnabledMods(false)
 }
 
 func (a *App) RemoveBackupDir(path string) {

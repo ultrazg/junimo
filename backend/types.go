@@ -47,7 +47,6 @@ type ModManifestJson struct {
 	ManifestPath      string   `json:"manifestPath"`
 	ModPath           string   `json:"modPath"`
 	ConfigPath        string   `json:"configPath"`
-	Disabled          bool     `json:"disabled"`
 }
 
 type LoadModsOptions struct {

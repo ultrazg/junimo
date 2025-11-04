@@ -49,18 +49,18 @@ func (a *App) SaveGamePath() SaveGamePathResultFlag {
 
 	a.UpdateConfig("game_path", path)
 
-	err = os.Mkdir(filepath.Join(path, "junimo_backup"), fs.FileMode(0755))
+	err = os.Mkdir(filepath.Join(path, "JUNIMO_BACKUP"), fs.FileMode(0755))
 	if err != nil {
 		fmt.Printf("创建 backup 目录失败：%v \n", err)
 	} else {
-		a.UpdateConfig("backup_path", filepath.Join(path, "junimo_backup"))
+		a.UpdateConfig("backup_path", filepath.Join(path, "JUNIMO_BACKUP"))
 	}
 
-	err = os.Mkdir(filepath.Join(path, "junimo_disabled"), fs.FileMode(0755))
+	err = os.Mkdir(filepath.Join(path, "JUNIMO_DISABLED"), fs.FileMode(0755))
 	if err != nil {
 		fmt.Printf("创建 disabled 目录失败：%v \n", err)
 	} else {
-		a.UpdateConfig("disabled_path", filepath.Join(path, "junimo_disabled"))
+		a.UpdateConfig("disabled_path", filepath.Join(path, "JUNIMO_DISABLED"))
 	}
 
 	return SaveGamePathResultFlag{
@@ -80,7 +80,7 @@ func verifyGamePath(path string) bool {
 	return true
 }
 
-func (a *App) LoadMods(showSnackbar bool) {
+func (a *App) LoadEnabledMods(showSnackbar bool) {
 	gamePath := a.ReadConfig("game_path")
 	modsPath := filepath.Join(gamePath.(string), "Mods")
 
@@ -124,9 +124,7 @@ func (a *App) LoadMods(showSnackbar bool) {
 		}
 	}
 
-	a.UpdateConfig("mods", modsConfig)
-
-	runtime.EventsEmit(a.ctx, "loadMods", LoadModsOptions{
+	runtime.EventsEmit(a.ctx, "loadActiveMods", LoadModsOptions{
 		Mods:  modsConfig,
 		Total: len(modsConfig),
 	})
@@ -194,7 +192,6 @@ func parseManifestFile(a *App, path string) (ModManifestJson, error) {
 		ManifestPath:      path,
 		ModPath:           trimToFirstSubdirUnderMods(path),
 		ConfigPath:        configPath,
-		Disabled:          false,
 	}
 	updateKeys := gjson.Get(jsonStr, "UpdateKeys")
 	if updateKeys.Exists() && updateKeys.IsArray() {
