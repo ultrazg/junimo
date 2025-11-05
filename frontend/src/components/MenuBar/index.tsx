@@ -7,7 +7,7 @@ import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined'
 import SourceOutlinedIcon from '@mui/icons-material/SourceOutlined'
 import styles from './index.module.scss'
 import { About, Setting, BackupModal } from '@/components'
-import { LoadEnabledMods, BackupModDir } from '@/utils'
+import { LoadEnabledMods, LoadDisabledMods, BackupModDir } from '@/utils'
 import SMAPI_ICON from '@/assets/images/smapi_icon.png'
 
 const MenuBar = () => {
@@ -19,8 +19,11 @@ const MenuBar = () => {
 
   const onLoadMods = () => {
     setSyncLoading(true)
-    LoadEnabledMods(true)
-      .then()
+
+    Promise.allSettled([LoadEnabledMods(true), LoadDisabledMods()])
+      .catch((err) => {
+        console.error(err)
+      })
       .finally(() => {
         setSyncLoading(false)
       })

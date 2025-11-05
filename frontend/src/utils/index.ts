@@ -14,6 +14,9 @@ import {
   UpdateModConfigFile,
   ListBackupDirs,
   OpenBackupDir,
+  LoadDisabledMods,
+  DisableMod,
+  EnableMod,
 } from 'wailsjs/go/backend/App'
 import { EventsOn } from 'wailsjs/runtime'
 import { onSaveGamePath } from './fs'
@@ -40,4 +43,7 @@ export {
   UpdateModConfigFile,
   ListBackupDirs,
   OpenBackupDir,
+  LoadDisabledMods,
+  DisableMod,
+  EnableMod,
 }

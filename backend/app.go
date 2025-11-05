@@ -23,11 +23,12 @@ func (a *App) DomReady(ctx context.Context) {
 
 	if gamePath != "" {
 		a.LoadEnabledMods(true)
+		a.LoadDisabledMods()
 	} else {
 		SnackbarShow(ctx, &SnackbarShowOptions{
 			Message:          "请先在设置中选择游戏路径",
 			ShowIcon:         true,
-			AutoHideDuration: 3000,
+			AutoHideDuration: 6000,
 			Color:            SnackbarColorWarning,
 			Variant:          SnackbarVariantSoft,
 		})

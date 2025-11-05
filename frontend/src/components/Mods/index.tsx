@@ -26,7 +26,7 @@ const Mods = () => {
   })
 
   useEffect(() => {
-    const onSyncMods = EventsOn(
+    const onLoadEnabledMods = EventsOn(
       'LoadEnabledMods',
       (data: { mods: ModManifestType[]; total: number }) => {
         setEnabledMods(data.mods)
@@ -34,8 +34,17 @@ const Mods = () => {
       },
     )
 
+    const onDisabledMods = EventsOn(
+      'LoadDisabledMods',
+      (data: { mods: ModManifestType[]; total: number }) => {
+        setDisabledMods(data.mods)
+        setDisabledModsTotal(data.total)
+      },
+    )
+
     return () => {
-      onSyncMods()
+      onLoadEnabledMods()
+      onDisabledMods()
     }
   })
 
@@ -58,7 +67,7 @@ const Mods = () => {
           size={'sm'}
         >
           <Tab>已启用({enabledModsTotal})</Tab>
-          <Tab>已禁用</Tab>
+          <Tab>已禁用({disabledModsTotal})</Tab>
         </TabList>
         <TabPanel
           value={0}
@@ -73,7 +82,7 @@ const Mods = () => {
           value={1}
           style={{ padding: 0 }}
         >
-          <DisabledMods />
+          <DisabledMods mods={disabledMods} />
         </TabPanel>
       </Tabs>
 

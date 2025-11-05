@@ -348,3 +348,11 @@ func CalcDirSize(path string) (int64, error) {
 
 	return totalSize, err
 }
+
+func MoveDir(src, dst string) error {
+	if err := copyDir(src, dst); err != nil {
+		return err
+	}
+
+	return os.RemoveAll(src)
+}

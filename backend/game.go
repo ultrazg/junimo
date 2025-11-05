@@ -129,7 +129,7 @@ func (a *App) LoadEnabledMods(showSnackbar bool) {
 		Total: len(modsConfig),
 	})
 
-	runtime.WindowSetTitle(a.ctx, fmt.Sprintf("Junimo - 已加载 %d 个 Mod - SMAPI 版本：v%s", len(modsConfig), a.ReadConfig("smapi_version")))
+	runtime.WindowSetTitle(a.ctx, fmt.Sprintf("Junimo - SMAPI 版本：v%s", a.ReadConfig("smapi_version")))
 
 	if showSnackbar {
 		SnackbarShow(a.ctx, &SnackbarShowOptions{
@@ -139,6 +139,56 @@ func (a *App) LoadEnabledMods(showSnackbar bool) {
 			Variant:  SnackbarVariantSoft,
 		})
 	}
+}
+
+func (a *App) LoadDisabledMods() {
+	gamePath := a.ReadConfig("game_path")
+	disabledModsPath := filepath.Join(gamePath.(string), "JUNIMO_DISABLED")
+
+	disabledMods, err := os.ReadDir(disabledModsPath)
+	if err != nil {
+		log.Printf("读取 JUNIMO_DISABLED 目录失败: %v", err)
+
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:          fmt.Sprintf("无法读取已禁用 Mod 目录: %v", err),
+			ShowIcon:         true,
+			Color:            SnackbarColorDanger,
+			Variant:          SnackbarVariantSoft,
+			AutoHideDuration: 6000,
+		})
+
+		return
+	}
+
+	var disabledModsConfig []ModManifestJson
+
+	for _, mod := range disabledMods {
+		if mod.IsDir() {
+			modManifestPath := findModManifestFile(filepath.Join(disabledModsPath, mod.Name()))
+			if modManifestPath != "" {
+				modManifest, err := parseManifestFile(a, modManifestPath)
+				if err != nil {
+					log.Printf("解析 ModManifest 文件 %s 失败: %v", modManifestPath, err)
+
+					SnackbarShow(a.ctx, &SnackbarShowOptions{
+						Message:  fmt.Sprintf("解析 ModManifest 文件 %s 失败: %v", modManifestPath, err),
+						ShowIcon: true,
+						Color:    SnackbarColorDanger,
+						Variant:  SnackbarVariantSoft,
+					})
+
+					continue
+				}
+
+				disabledModsConfig = append(disabledModsConfig, modManifest)
+			}
+		}
+	}
+
+	runtime.EventsEmit(a.ctx, "LoadDisabledMods", LoadModsOptions{
+		Mods:  disabledModsConfig,
+		Total: len(disabledModsConfig),
+	})
 }
 
 func findModManifestFile(path string) string {
@@ -287,4 +337,55 @@ func (a *App) ListBackupDirs() []ListBackupDirsResult {
 	}
 
 	return backupDirs
+}
+
+func (a *App) DisableMod(path string) {
+	disabledPath := a.ReadConfig("disabled_path").(string)
+
+	info, err := os.Stat(path)
+	if err != nil {
+		log.Printf("读取目录 %s 失败: %v", path, err)
+
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:          fmt.Sprintf("无法读取目录 %s，禁用失败: %v", path, err),
+			ShowIcon:         true,
+			Color:            SnackbarColorDanger,
+			Variant:          SnackbarVariantSoft,
+			AutoHideDuration: 3000,
+		})
+
+		return
+	}
+
+	dstPath := filepath.Join(disabledPath, info.Name())
+
+	err = MoveDir(path, dstPath)
+	if err != nil {
+		log.Printf("禁用 Mod %s 失败: %v", path, err)
+
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:          fmt.Sprintf("禁用 Mod 失败: %v", err),
+			ShowIcon:         true,
+			Color:            SnackbarColorDanger,
+			Variant:          SnackbarVariantSoft,
+			AutoHideDuration: 3000,
+		})
+
+		return
+	}
+
+	a.LoadEnabledMods(false)
+	a.LoadDisabledMods()
+
+	SnackbarShow(a.ctx, &SnackbarShowOptions{
+		Message:          "成功禁用 Mod",
+		ShowIcon:         true,
+		Color:            SnackbarColorSuccess,
+		Variant:          SnackbarVariantSoft,
+		AutoHideDuration: 3000,
+	})
+}
+
+func (a *App) EnableMod(path string) {
+
 }

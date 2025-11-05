@@ -7,7 +7,7 @@ import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined
 import FolderOpenOutlinedIcon from '@mui/icons-material/FolderOpenOutlined'
 import { IconButton, Table, Tooltip } from '@mui/joy'
 import styles from './index.module.scss'
-import { OpenModDir, RemoveModDir } from 'wailsjs/go/backend/App'
+import { OpenModDir, RemoveModDir, DisableMod } from '@/utils'
 import { DeleteModal } from '@/components'
 
 type IProps = {
@@ -44,7 +44,7 @@ const EnabledMods: React.FC<IProps> = ({ mods, onEditConfigFileFunc }) => {
   }
 
   return (
-    <div className={styles['active-mods-wrapper']}>
+    <div className={styles['mods-wrapper']}>
       <Table
         className={styles['table']}
         stickyFooter={false}
@@ -126,6 +126,9 @@ const EnabledMods: React.FC<IProps> = ({ mods, onEditConfigFileFunc }) => {
                   <IconButton
                     variant={'plain'}
                     size={'sm'}
+                    onClick={() => {
+                      DisableMod(mod.modPath).then()
+                    }}
                   >
                     <DoDisturbOnOutlinedIcon />
                   </IconButton>

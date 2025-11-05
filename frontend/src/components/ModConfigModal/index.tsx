@@ -77,15 +77,6 @@ const ModConfigModal: React.FC<IProps> = ({
         />
 
         <div className={styles['mod-config-modal-option-button']}>
-          <div className={styles['tip']}>
-            <Typography
-              color={'danger'}
-              level={'body-sm'}
-            >
-              注意：请确保配置文件格式，修改前关闭游戏
-            </Typography>
-          </div>
-
           <div className={styles['option-button']}>
             <Button
               size={'sm'}
