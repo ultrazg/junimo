@@ -19,6 +19,7 @@ func init() {
 		viper.SetDefault("backup_path", "")
 		viper.SetDefault("disabled_path", "")
 		viper.SetDefault("smapi_version", "")
+		viper.SetDefault("auto_check_for_update", false)
 
 		err := viper.ReadInConfig()
 		if err != nil {
@@ -47,6 +48,6 @@ func (a *App) UpdateConfig(key string, value any) (bool, string) {
 		return false, "无法写入配置文件"
 	}
 
-	log.Println("配置文件已更新")
+	log.Printf("配置文件已更新: %s = %v", key, value)
 	return true, "配置文件已更新"
 }

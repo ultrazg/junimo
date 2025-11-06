@@ -143,6 +143,7 @@ const BackupModal: React.FC<IProps> = ({ open, onClose }) => {
                           variant={'plain'}
                           size={'sm'}
                           onClick={() => {}}
+                          color={'primary'}
                         >
                           <RestoreOutlinedIcon />
                         </IconButton>
@@ -159,6 +160,7 @@ const BackupModal: React.FC<IProps> = ({ open, onClose }) => {
                           onClick={() => {
                             OpenBackupDir(dir.name).then()
                           }}
+                          color={'primary'}
                         >
                           <FolderOpenOutlinedIcon />
                         </IconButton>

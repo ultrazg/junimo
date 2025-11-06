@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/tidwall/gjson"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -275,13 +276,65 @@ func trimToFirstSubdirUnderMods(path string) string {
 	return cleanPath
 }
 
+func (a *App) BackupModDir() {
+	gamePath := a.ReadConfig("game_path").(string)
+	backupPath := a.ReadConfig("backup_path").(string)
+
+	if gamePath == "" || backupPath == "" {
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:  "无法备份，请在设置中检查或配置游戏目录",
+			ShowIcon: true,
+			Color:    SnackbarColorDanger,
+			Variant:  SnackbarVariantSoft,
+		})
+
+		return
+	}
+
+	modDir := filepath.Join(gamePath, "Mods")
+
+	if _, err := os.Stat(modDir); os.IsNotExist(err) {
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:  "Mods 目录不存在，无法备份",
+			ShowIcon: true,
+			Color:    SnackbarColorWarning,
+			Variant:  SnackbarVariantSoft,
+		})
+
+		return
+	}
+
+	timeSuffix := time.Now().Format("20060102_150405")
+	targetDir := filepath.Join(backupPath, "Mods_backup_"+timeSuffix)
+
+	err := copyDir(modDir, targetDir)
+	if err != nil {
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:  fmt.Sprintf("备份失败: %v", err),
+			ShowIcon: true,
+			Color:    SnackbarColorDanger,
+			Variant:  SnackbarVariantSoft,
+		})
+
+		return
+	}
+
+	SnackbarShow(a.ctx, &SnackbarShowOptions{
+		Message:          fmt.Sprintf("Mods 目录已成功备份至 %s", targetDir),
+		ShowIcon:         true,
+		Color:            SnackbarColorSuccess,
+		Variant:          SnackbarVariantSoft,
+		AutoHideDuration: 6000,
+	})
+}
+
 func (a *App) ListBackupDirs() []ListBackupDirsResult {
 	backupPath := a.ReadConfig("backup_path").(string)
 	if backupPath == "" {
 		log.Printf("备份路径为空")
 
 		SnackbarShow(a.ctx, &SnackbarShowOptions{
-			Message:  "备份路径为空",
+			Message:  "备份路径为空，请在设置中检查或配置游戏目录",
 			ShowIcon: true,
 			Color:    SnackbarColorWarning,
 			Variant:  SnackbarVariantSoft,

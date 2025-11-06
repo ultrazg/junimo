@@ -11,7 +11,14 @@ import {
   OpenAppDir,
   LoadEnabledMods,
 } from '@/utils'
-import { Button, Radio, RadioGroup, Typography, useColorScheme } from '@mui/joy'
+import {
+  Button,
+  Radio,
+  RadioGroup,
+  Typography,
+  useColorScheme,
+  Switch,
+} from '@mui/joy'
 import styles from './index.module.scss'
 import FolderTwoToneIcon from '@mui/icons-material/FolderTwoTone'
 import BuildTwoToneIcon from '@mui/icons-material/BuildTwoTone'
@@ -26,6 +33,7 @@ const THEME_LISTS = ['light', 'dark']
 const Setting: React.FC<IProps> = ({ open, onClose }) => {
   const [currentTheme, setCurrentTheme] = useState<'light' | 'dark'>('light')
   const [gamePath, setGamePath] = useState<string>('')
+  const [autoCheckForUpdate, setAutoCheckForUpdate] = useState<boolean>(true)
   const { setMode } = useColorScheme()
 
   const init = () => {
@@ -35,6 +43,10 @@ const Setting: React.FC<IProps> = ({ open, onClose }) => {
 
     ReadConfig('game_path').then((res: string) => {
       setGamePath(res)
+    })
+
+    ReadConfig('auto_check_for_update').then((res: boolean) => {
+      setAutoCheckForUpdate(res)
     })
   }
 
@@ -49,6 +61,14 @@ const Setting: React.FC<IProps> = ({ open, onClose }) => {
     } else {
       setDarkMode()
     }
+  }
+
+  const handleChangeAutoCheckForUpdate = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const checked = event.target.checked
+    setAutoCheckForUpdate(checked)
+    UpdateConfig('auto_check_for_update', checked).then()
   }
 
   const handleSaveGamePath = async () => {
@@ -167,6 +187,18 @@ const Setting: React.FC<IProps> = ({ open, onClose }) => {
                 <FolderTwoToneIcon />
                 打开应用程序目录
               </Button>
+            </div>
+          </div>
+
+          <div className={styles['setting-item']}>
+            <div className={styles['label']}>
+              <Typography level={'title-lg'}>启动时检查更新</Typography>
+            </div>
+            <div className={styles['value']}>
+              <Switch
+                checked={autoCheckForUpdate}
+                onChange={handleChangeAutoCheckForUpdate}
+              />
             </div>
           </div>
         </div>
