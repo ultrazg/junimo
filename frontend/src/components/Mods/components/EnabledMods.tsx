@@ -80,6 +80,7 @@ const EnabledMods: React.FC<IProps> = ({ mods, onEditConfigFileFunc }) => {
                   <IconButton
                     variant={'plain'}
                     size={'sm'}
+                    color={'primary'}
                   >
                     <InfoOutlinedIcon />
                   </IconButton>
@@ -97,6 +98,7 @@ const EnabledMods: React.FC<IProps> = ({ mods, onEditConfigFileFunc }) => {
                     onClick={() => {
                       onEditConfigFileFunc(mod.name, mod.configPath)
                     }}
+                    color={'primary'}
                   >
                     <BuildCircleOutlinedIcon />
                   </IconButton>
@@ -113,6 +115,7 @@ const EnabledMods: React.FC<IProps> = ({ mods, onEditConfigFileFunc }) => {
                     onClick={() => {
                       OpenModDir(mod.manifestPath).then()
                     }}
+                    color={'primary'}
                   >
                     <FolderOpenOutlinedIcon />
                   </IconButton>
@@ -129,6 +132,7 @@ const EnabledMods: React.FC<IProps> = ({ mods, onEditConfigFileFunc }) => {
                     onClick={() => {
                       DisableMod(mod.modPath).then()
                     }}
+                    color={'primary'}
                   >
                     <DoDisturbOnOutlinedIcon />
                   </IconButton>

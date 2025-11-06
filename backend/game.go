@@ -387,5 +387,48 @@ func (a *App) DisableMod(path string) {
 }
 
 func (a *App) EnableMod(path string) {
+	baseDisabledPath := a.ReadConfig("disabled_path").(string)
+	gamePath := a.ReadConfig("game_path").(string)
+	modsPath := filepath.Join(gamePath, "Mods")
+	path = filepath.Clean(path)
+	parts := strings.Split(path, string(os.PathSeparator))
 
+	var modBaseDir string
+	for i, part := range parts {
+		if part == "JUNIMO_DISABLED" {
+			if i+1 < len(parts) {
+				modBaseDir = parts[i+1]
+			}
+			break
+		}
+	}
+
+	srcPath := filepath.Join(baseDisabledPath, modBaseDir)
+	dstPath := filepath.Join(modsPath, modBaseDir)
+
+	err := MoveDir(srcPath, dstPath)
+	if err != nil {
+		log.Printf("启用 Mod %s 失败: %v", srcPath, err)
+
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:          fmt.Sprintf("启用 Mod 失败: %v", err),
+			ShowIcon:         true,
+			Color:            SnackbarColorDanger,
+			Variant:          SnackbarVariantSoft,
+			AutoHideDuration: 3000,
+		})
+
+		return
+	}
+
+	a.LoadEnabledMods(false)
+	a.LoadDisabledMods()
+
+	SnackbarShow(a.ctx, &SnackbarShowOptions{
+		Message:          "成功启用 Mod",
+		ShowIcon:         true,
+		Color:            SnackbarColorSuccess,
+		Variant:          SnackbarVariantSoft,
+		AutoHideDuration: 3000,
+	})
 }

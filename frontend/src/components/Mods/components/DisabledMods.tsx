@@ -49,6 +49,7 @@ const DisabledMods: React.FC<IProps> = ({ mods }) => {
                   <IconButton
                     variant={'plain'}
                     size={'sm'}
+                    color={'primary'}
                   >
                     <InfoOutlinedIcon />
                   </IconButton>
@@ -65,6 +66,7 @@ const DisabledMods: React.FC<IProps> = ({ mods }) => {
                     onClick={() => {
                       EnableMod(mod.modPath).then()
                     }}
+                    color={'primary'}
                   >
                     <CheckCircleOutlinedIcon />
                   </IconButton>
@@ -81,6 +83,7 @@ const DisabledMods: React.FC<IProps> = ({ mods }) => {
                     onClick={() => {
                       OpenModDir(mod.manifestPath).then()
                     }}
+                    color={'primary'}
                   >
                     <FolderOpenOutlinedIcon />
                   </IconButton>

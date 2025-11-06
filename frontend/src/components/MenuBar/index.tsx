@@ -45,6 +45,7 @@ const MenuBar = () => {
           variant={'plain'}
           spacing={1}
           color={'primary'}
+          size={'sm'}
         >
           <IconButton>
             <img
