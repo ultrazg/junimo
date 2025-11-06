@@ -2,12 +2,15 @@ package backend
 
 import (
 	"context"
+	"log"
+	"os"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 type App struct {
-	ctx context.Context
+	ctx     context.Context
+	logFile *os.File
 }
 
 func NewApp() *App {
@@ -16,6 +19,15 @@ func NewApp() *App {
 
 func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
+
+	logFile, err := initLog()
+	if err != nil {
+		log.Printf("初始化日志失败: %v", err)
+	}
+
+	a.logFile = logFile
+
+	log.Println("Startup")
 }
 
 func (a *App) DomReady(ctx context.Context) {
@@ -32,6 +44,14 @@ func (a *App) DomReady(ctx context.Context) {
 			Color:            SnackbarColorWarning,
 			Variant:          SnackbarVariantSoft,
 		})
+	}
+}
+
+func (a *App) Shutdown(ctx context.Context) {
+	log.Println("Shutdown")
+
+	if a.logFile != nil {
+		a.logFile.Close()
 	}
 }
 
