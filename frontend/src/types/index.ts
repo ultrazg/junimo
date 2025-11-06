@@ -11,3 +11,10 @@ export type ModManifestType = {
   modPath: string
   configPath: string
 }
+
+export type SnackbarOptions = {
+  color?: 'primary' | 'neutral' | 'danger' | 'success' | 'warning'
+  variant?: 'soft' | 'solid' | 'outlined' | 'plain'
+  autoHideDuration?: number
+  showIcon?: boolean
+}

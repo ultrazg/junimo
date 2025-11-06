@@ -7,7 +7,7 @@ import {
   EventsOn,
   snackbar,
 } from '@/utils'
-import { SnackbarOptions } from '@/providers/SnackbarProvider'
+import { SnackbarOptions } from '@/types'
 
 const App = () => {
   const initStyleMode = () => {
