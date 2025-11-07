@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -57,4 +58,22 @@ func (a *App) Shutdown(ctx context.Context) {
 
 func SnackbarShow(ctx context.Context, options *SnackbarShowOptions) {
 	runtime.EventsEmit(ctx, "snackbarShow", options)
+}
+
+func (a *App) LogDirSize() int64 {
+	appPath, err := os.Getwd()
+	if err != nil {
+		log.Printf("获取应用目录失败: %v", err)
+		return 0
+	}
+
+	logDir := filepath.Join(appPath, "logs")
+
+	totalSize, err := CalcDirSize(logDir)
+	if err != nil {
+		log.Printf("计算日志目录 %s 大小失败: %v", logDir, err)
+		return 0
+	}
+
+	return totalSize
 }

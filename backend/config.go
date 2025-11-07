@@ -1,7 +1,6 @@
 package backend
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -23,20 +22,22 @@ func init() {
 
 		err := viper.ReadInConfig()
 		if err != nil {
-			fmt.Printf("读取配置文件失败: %v\n", err)
+			log.Printf("读取配置文件失败: %v\n", err)
 			if err = viper.SafeWriteConfigAs("config.json"); err != nil {
-				fmt.Printf("写入配置文件失败: %v\n", err)
+				log.Printf("写入配置文件失败: %v\n", err)
 			}
 		}
 	} else {
 		err := viper.ReadInConfig()
 		if err != nil {
-			fmt.Printf("读取配置文件失败: %v\n", err)
+			log.Printf("读取配置文件失败: %v\n", err)
 		}
 	}
 }
 
 func (a *App) ReadConfig(key string) any {
+	log.Printf("读取配置: %s = %v", key, viper.Get(key))
+
 	return viper.Get(key)
 }
 

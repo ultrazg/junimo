@@ -10,6 +10,8 @@ import {
   OpenGameDir,
   OpenAppDir,
   LoadEnabledMods,
+  OpenLogDir,
+  LogDirSize,
 } from '@/utils'
 import {
   Button,
@@ -30,10 +32,22 @@ type IProps = {
 
 const THEME_LISTS = ['light', 'dark']
 
+const formatBytes = (bytes: number): string => {
+  if (bytes === 0) return '0 B'
+
+  const k = 1024
+  const sizes = ['B', 'KB', 'MB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+  const value = bytes / Math.pow(k, i)
+  return `${value.toFixed(2)} ${sizes[i]}`
+}
+
 const Setting: React.FC<IProps> = ({ open, onClose }) => {
   const [currentTheme, setCurrentTheme] = useState<'light' | 'dark'>('light')
   const [gamePath, setGamePath] = useState<string>('')
   const [autoCheckForUpdate, setAutoCheckForUpdate] = useState<boolean>(true)
+  const [logDirSize, setLogDirSize] = useState<number>(0)
   const { setMode } = useColorScheme()
 
   const init = () => {
@@ -47,6 +61,10 @@ const Setting: React.FC<IProps> = ({ open, onClose }) => {
 
     ReadConfig('auto_check_for_update').then((res: boolean) => {
       setAutoCheckForUpdate(res)
+    })
+
+    LogDirSize().then((res: number) => {
+      setLogDirSize(res)
     })
   }
 
@@ -147,6 +165,7 @@ const Setting: React.FC<IProps> = ({ open, onClose }) => {
                 <Typography
                   level={'body-md'}
                   sx={{ mb: 1.5 }}
+                  color={'neutral'}
                 >
                   当前游戏目录：{gamePath}
                 </Typography>
@@ -186,6 +205,33 @@ const Setting: React.FC<IProps> = ({ open, onClose }) => {
               >
                 <FolderTwoToneIcon />
                 打开应用程序目录
+              </Button>
+            </div>
+          </div>
+
+          <div className={styles['setting-item']}>
+            <div className={styles['label']}>
+              <Typography level={'title-lg'}>应用程序日志目录</Typography>
+            </div>
+            <div className={styles['value']}>
+              {logDirSize !== 0 && (
+                <Typography
+                  level={'body-md'}
+                  sx={{ mb: 1.5 }}
+                  color={'neutral'}
+                >
+                  日志文件已占用 {formatBytes(logDirSize)}{' '}
+                  的磁盘空间，可手动清除
+                </Typography>
+              )}
+
+              <Button
+                size={'sm'}
+                variant={'soft'}
+                onClick={() => OpenLogDir()}
+              >
+                <FolderTwoToneIcon />
+                打开应用程序日志目录
               </Button>
             </div>
           </div>

@@ -17,6 +17,8 @@ import {
   LoadDisabledMods,
   DisableMod,
   EnableMod,
+  OpenLogDir,
+  LogDirSize,
 } from 'wailsjs/go/backend/App'
 import { EventsOn } from 'wailsjs/runtime'
 import { onSaveGamePath } from './fs'
@@ -46,4 +48,6 @@ export {
   LoadDisabledMods,
   DisableMod,
   EnableMod,
+  OpenLogDir,
+  LogDirSize,
 }

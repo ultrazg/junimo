@@ -22,6 +22,8 @@ func (a *App) SaveGamePath() SaveGamePathResultFlag {
 		Title: "选择游戏路径",
 	}
 
+	log.Println("打开目录对话框")
+
 	path, err := runtime.OpenDirectoryDialog(a.ctx, options)
 	if err != nil {
 		log.Printf("选择游戏路径失败: %v", err)
@@ -48,19 +50,25 @@ func (a *App) SaveGamePath() SaveGamePathResultFlag {
 		}
 	}
 
+	log.Printf("选择游戏路径: %s", path)
+
 	a.UpdateConfig("game_path", path)
 
 	err = os.Mkdir(filepath.Join(path, "JUNIMO_BACKUP"), fs.FileMode(0755))
 	if err != nil {
-		fmt.Printf("创建 backup 目录失败：%v \n", err)
+		log.Printf("创建 backup 目录失败：%v \n", err)
 	} else {
+		log.Printf("创建 backup 目录成功: %s", filepath.Join(path, "JUNIMO_BACKUP"))
+
 		a.UpdateConfig("backup_path", filepath.Join(path, "JUNIMO_BACKUP"))
 	}
 
 	err = os.Mkdir(filepath.Join(path, "JUNIMO_DISABLED"), fs.FileMode(0755))
 	if err != nil {
-		fmt.Printf("创建 disabled 目录失败：%v \n", err)
+		log.Printf("创建 disabled 目录失败：%v \n", err)
 	} else {
+		log.Printf("创建 disabled 目录成功: %s", filepath.Join(path, "JUNIMO_DISABLED"))
+
 		a.UpdateConfig("disabled_path", filepath.Join(path, "JUNIMO_DISABLED"))
 	}
 
@@ -225,6 +233,9 @@ func parseManifestFile(a *App, path string) (ModManifestJson, error) {
 		log.Printf("读取文件 %s 失败: %v", manifestFile, err)
 		return ModManifestJson{}, err
 	}
+
+	log.Printf("开始解析文件 %s ", manifestFile)
+
 	var configPath string
 
 	if _, err := os.Stat(filepath.Join(path, ModConfigFileName)); err == nil {
@@ -280,6 +291,9 @@ func (a *App) BackupModDir() {
 	gamePath := a.ReadConfig("game_path").(string)
 	backupPath := a.ReadConfig("backup_path").(string)
 
+	log.Printf("gamePath: %s", gamePath)
+	log.Printf("backupPath: %s", backupPath)
+
 	if gamePath == "" || backupPath == "" {
 		SnackbarShow(a.ctx, &SnackbarShowOptions{
 			Message:  "无法备份，请在设置中检查或配置游戏目录",
@@ -294,6 +308,8 @@ func (a *App) BackupModDir() {
 	modDir := filepath.Join(gamePath, "Mods")
 
 	if _, err := os.Stat(modDir); os.IsNotExist(err) {
+		log.Printf("Mods 目录不存在: %v", err)
+
 		SnackbarShow(a.ctx, &SnackbarShowOptions{
 			Message:  "Mods 目录不存在，无法备份",
 			ShowIcon: true,
@@ -309,6 +325,8 @@ func (a *App) BackupModDir() {
 
 	err := copyDir(modDir, targetDir)
 	if err != nil {
+		log.Printf("备份 Mods 目录失败: %v", err)
+
 		SnackbarShow(a.ctx, &SnackbarShowOptions{
 			Message:  fmt.Sprintf("备份失败: %v", err),
 			ShowIcon: true,
@@ -318,6 +336,8 @@ func (a *App) BackupModDir() {
 
 		return
 	}
+
+	log.Printf("Mods 目录已成功备份至 %s", targetDir)
 
 	SnackbarShow(a.ctx, &SnackbarShowOptions{
 		Message:          fmt.Sprintf("Mods 目录已成功备份至 %s", targetDir),
@@ -331,7 +351,7 @@ func (a *App) BackupModDir() {
 func (a *App) ListBackupDirs() []ListBackupDirsResult {
 	backupPath := a.ReadConfig("backup_path").(string)
 	if backupPath == "" {
-		log.Printf("备份路径为空")
+		log.Printf("备份路径 %s 为空", backupPath)
 
 		SnackbarShow(a.ctx, &SnackbarShowOptions{
 			Message:  "备份路径为空，请在设置中检查或配置游戏目录",
@@ -378,6 +398,8 @@ func (a *App) ListBackupDirs() []ListBackupDirsResult {
 				continue
 			}
 
+			log.Printf("备份成功：%s", info.Name())
+
 			fmt.Printf("备份名称: %s, 大小: %d bytes, 修改时间: %v, 是否目录: %v\n",
 				info.Name(), size, info.ModTime(), info.IsDir())
 
@@ -394,6 +416,8 @@ func (a *App) ListBackupDirs() []ListBackupDirsResult {
 
 func (a *App) DisableMod(path string) {
 	disabledPath := a.ReadConfig("disabled_path").(string)
+
+	log.Printf("disabledPath: %s", disabledPath)
 
 	info, err := os.Stat(path)
 	if err != nil {
@@ -430,6 +454,8 @@ func (a *App) DisableMod(path string) {
 	a.LoadEnabledMods(false)
 	a.LoadDisabledMods()
 
+	log.Printf("成功禁用 Mod %s", path)
+
 	SnackbarShow(a.ctx, &SnackbarShowOptions{
 		Message:          "成功禁用 Mod",
 		ShowIcon:         true,
@@ -445,6 +471,12 @@ func (a *App) EnableMod(path string) {
 	modsPath := filepath.Join(gamePath, "Mods")
 	path = filepath.Clean(path)
 	parts := strings.Split(path, string(os.PathSeparator))
+
+	log.Printf("baseDisabledPath: %s", baseDisabledPath)
+	log.Printf("gamePath: %s", gamePath)
+	log.Printf("modsPath: %s", modsPath)
+	log.Printf("path: %s", path)
+	log.Printf("parts: %s", parts)
 
 	var modBaseDir string
 	for i, part := range parts {
@@ -473,6 +505,8 @@ func (a *App) EnableMod(path string) {
 
 		return
 	}
+
+	log.Printf("成功启用 Mod %s", srcPath)
 
 	a.LoadEnabledMods(false)
 	a.LoadDisabledMods()
