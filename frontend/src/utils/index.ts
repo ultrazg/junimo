@@ -19,6 +19,7 @@ import {
   EnableMod,
   OpenLogDir,
   LogDirSize,
+  RestoreBackup,
 } from 'wailsjs/go/backend/App'
 import { EventsOn } from 'wailsjs/runtime'
 import { onSaveGamePath } from './fs'
@@ -50,4 +51,5 @@ export {
   EnableMod,
   OpenLogDir,
   LogDirSize,
+  RestoreBackup,
 }

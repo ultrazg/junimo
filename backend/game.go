@@ -414,6 +414,92 @@ func (a *App) ListBackupDirs() []ListBackupDirsResult {
 	return backupDirs
 }
 
+func (a *App) RestoreBackup(name string) {
+	backPath := a.ReadConfig("backup_path").(string)
+	gamePath := a.ReadConfig("game_path").(string)
+	modsPath := filepath.Join(gamePath, "Mods")
+	backupDir := filepath.Join(backPath, name)
+
+	err := clearDir(modsPath)
+	if err != nil {
+		log.Printf("清空 Mods 目录失败: %v", err)
+
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:          fmt.Sprintf("恢复备份失败: %v", err),
+			ShowIcon:         true,
+			Color:            SnackbarColorDanger,
+			Variant:          SnackbarVariantSoft,
+			AutoHideDuration: 3000,
+		})
+
+		return
+	}
+
+	entries, err := os.ReadDir(backupDir)
+	if err != nil {
+		log.Printf("读取备份目录 %s 失败: %v", backupDir, err)
+
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:          fmt.Sprintf("恢复备份失败: %v", err),
+			ShowIcon:         true,
+			Color:            SnackbarColorDanger,
+			Variant:          SnackbarVariantSoft,
+			AutoHideDuration: 3000,
+		})
+
+		return
+	}
+
+	for _, entry := range entries {
+		srcPath := filepath.Join(backupDir, entry.Name())
+		dstPath := filepath.Join(modsPath, entry.Name())
+
+		if entry.IsDir() {
+			err = copyDir(srcPath, dstPath)
+			if err != nil {
+				log.Printf("恢复备份 %s 失败: %v", entry.Name(), err)
+
+				SnackbarShow(a.ctx, &SnackbarShowOptions{
+					Message:          fmt.Sprintf("恢复备份 %s 失败: %v", entry.Name(), err),
+					ShowIcon:         true,
+					Color:            SnackbarColorDanger,
+					Variant:          SnackbarVariantSoft,
+					AutoHideDuration: 3000,
+				})
+
+				continue
+			}
+		} else {
+			err = copyFile(srcPath, dstPath)
+			if err != nil {
+				log.Printf("恢复备份 %s 失败: %v", entry.Name(), err)
+
+				SnackbarShow(a.ctx, &SnackbarShowOptions{
+					Message:          fmt.Sprintf("恢复备份 %s 失败: %v", entry.Name(), err),
+					ShowIcon:         true,
+					Color:            SnackbarColorDanger,
+					Variant:          SnackbarVariantSoft,
+					AutoHideDuration: 3000,
+				})
+
+				continue
+			}
+		}
+	}
+
+	log.Printf("成功恢复备份 %s", name)
+
+	a.LoadEnabledMods(false)
+
+	SnackbarShow(a.ctx, &SnackbarShowOptions{
+		Message:          fmt.Sprintf("成功恢复备份 %s", name),
+		ShowIcon:         true,
+		Color:            SnackbarColorSuccess,
+		Variant:          SnackbarVariantSoft,
+		AutoHideDuration: 3000,
+	})
+}
+
 func (a *App) DisableMod(path string) {
 	disabledPath := a.ReadConfig("disabled_path").(string)
 

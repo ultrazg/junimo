@@ -47,7 +47,7 @@ const MenuBar = () => {
           color={'primary'}
           size={'sm'}
         >
-          <IconButton>
+          <IconButton title={'启动 SMAPI'}>
             <img
               src={SMAPI_ICON}
               alt={'SMAPI_ICON'}
@@ -61,7 +61,10 @@ const MenuBar = () => {
             </Typography>
           </IconButton>
 
-          <IconButton onClick={() => setSettingOpen(true)}>
+          <IconButton
+            onClick={() => setSettingOpen(true)}
+            title={'打开设置'}
+          >
             <SettingsTwoToneIcon />
             <Typography
               className={styles['button-text']}
@@ -74,6 +77,7 @@ const MenuBar = () => {
           <IconButton
             onClick={() => onLoadMods()}
             loading={syncLoading}
+            title={'立即刷新 Mod 列表'}
           >
             <SyncTwoToneIcon />
             <Typography
@@ -87,6 +91,7 @@ const MenuBar = () => {
           <IconButton
             onClick={() => onBackupMod()}
             loading={backupLoading}
+            title={'立即备份当前已启用的 Mod 的程序、资源和配置文件'}
           >
             <ContentCopyOutlinedIcon />
             <Typography
@@ -97,7 +102,10 @@ const MenuBar = () => {
             </Typography>
           </IconButton>
 
-          <IconButton onClick={() => setBackupModalOpen(true)}>
+          <IconButton
+            onClick={() => setBackupModalOpen(true)}
+            title={'查看已备份的列表'}
+          >
             <SourceOutlinedIcon />
             <Typography
               className={styles['button-text']}
@@ -107,7 +115,10 @@ const MenuBar = () => {
             </Typography>
           </IconButton>
 
-          <IconButton onClick={() => setAboutOpen(true)}>
+          <IconButton
+            onClick={() => setAboutOpen(true)}
+            title={'关于 Junimo'}
+          >
             <InfoTwoToneIcon />
             <Typography
               className={styles['button-text']}

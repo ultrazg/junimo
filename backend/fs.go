@@ -358,3 +358,26 @@ func MoveDir(src, dst string) error {
 
 	return os.RemoveAll(src)
 }
+
+func clearDir(path string) error {
+	entries, err := os.ReadDir(path)
+	if err != nil {
+		log.Print(err)
+
+		return err
+	}
+
+	for _, entry := range entries {
+		path := filepath.Join(path, entry.Name())
+		err = os.RemoveAll(path)
+		if err != nil {
+			log.Print(err)
+
+			return err
+		}
+	}
+
+	log.Printf("清空目录 %s 成功", path)
+
+	return nil
+}
