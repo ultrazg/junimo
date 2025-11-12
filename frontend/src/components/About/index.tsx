@@ -1,7 +1,7 @@
 import React from 'react'
 import { Modal } from '@/components'
 import { Typography, Button, Link, Divider } from '@mui/joy'
-import { APP_NAME, APP_VERSION } from '@/utils'
+import { APP_NAME, APP_VERSION, BrowserOpenURL } from '@/utils'
 import styles from './index.module.scss'
 import LoopTwoToneIcon from '@mui/icons-material/LoopTwoTone'
 import BalanceTwoToneIcon from '@mui/icons-material/BalanceTwoTone'
@@ -36,10 +36,24 @@ const About: React.FC<IProps> = ({ open, onClose }) => {
 
           <div>
             <Typography>
-              {APP_NAME} 是星露谷物语（<Link>Stardew Valley</Link>）Mod 管理软件
+              {APP_NAME} 是星露谷物语（
+              <Link
+                onClick={() => BrowserOpenURL('https://www.stardewvalley.net/')}
+              >
+                Stardew Valley
+              </Link>
+              ）Mod 管理软件
             </Typography>
             <Typography>
-              使用 <Link>wails</Link> + <Link>react</Link> 构建
+              使用{' '}
+              <Link onClick={() => BrowserOpenURL('https://wails.io/')}>
+                wails
+              </Link>{' '}
+              +{' '}
+              <Link onClick={() => BrowserOpenURL('https://react.dev/')}>
+                react
+              </Link>{' '}
+              构建
             </Typography>
           </div>
 

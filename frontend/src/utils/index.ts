@@ -21,7 +21,7 @@ import {
   LogDirSize,
   RestoreBackup,
 } from 'wailsjs/go/backend/App'
-import { EventsOn } from 'wailsjs/runtime'
+import { EventsOn, BrowserOpenURL } from 'wailsjs/runtime'
 import { onSaveGamePath } from './fs'
 import { snackbar } from '@/providers/SnackbarProvider'
 
@@ -52,4 +52,5 @@ export {
   OpenLogDir,
   LogDirSize,
   RestoreBackup,
+  BrowserOpenURL,
 }
