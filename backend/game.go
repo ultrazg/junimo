@@ -398,7 +398,7 @@ func (a *App) ListBackupDirs() []ListBackupDirsResult {
 				continue
 			}
 
-			log.Printf("备份成功：%s", info.Name())
+			log.Printf("读取的备份：%s", info.Name())
 
 			fmt.Printf("备份名称: %s, 大小: %d bytes, 修改时间: %v, 是否目录: %v\n",
 				info.Name(), size, info.ModTime(), info.IsDir())
