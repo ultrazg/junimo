@@ -19,6 +19,9 @@ func init() {
 		viper.SetDefault("disabled_path", "")
 		viper.SetDefault("smapi_version", "")
 		viper.SetDefault("auto_check_for_update", false)
+		viper.SetDefault("nexus_api_key", "")
+		viper.SetDefault("nexus_user_name", "")
+		viper.SetDefault("nexus_user_avatar", "")
 
 		err := viper.ReadInConfig()
 		if err != nil {

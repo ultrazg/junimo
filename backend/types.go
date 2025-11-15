@@ -1,6 +1,9 @@
 package backend
 
-import "time"
+import (
+	"net/http"
+	"time"
+)
 
 type SaveGamePathResultFlag struct {
 	Success bool   `json:"success"`
@@ -58,4 +61,24 @@ type ListBackupDirsResult struct {
 	Name       string    `json:"name"`
 	Size       int64     `json:"size"`
 	CreateTime time.Time `json:"createTime"`
+}
+
+const (
+	ApiUsersValidate = "https://api.nexusmods.com/v1/users/validate.json"
+)
+
+type Client struct {
+	http   *http.Client
+	apiKey string
+}
+
+type Nexus struct {
+}
+
+type NexusUserValidateResult struct {
+	UserID     int    `json:"user_id"`
+	Key        string `json:"key"`
+	Name       string `json:"name"`
+	Email      string `json:"email"`
+	ProfileUrl string `json:"profile_url"`
 }

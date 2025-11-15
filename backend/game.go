@@ -92,6 +92,7 @@ func verifyGamePath(path string) bool {
 func (a *App) LoadEnabledMods(showSnackbar bool) {
 	gamePath := a.ReadConfig("game_path")
 	modsPath := filepath.Join(gamePath.(string), "Mods")
+	SMAPIVersion := a.ReadConfig("smapi_version").(string)
 
 	mods, err := os.ReadDir(modsPath)
 	if err != nil {
@@ -138,7 +139,9 @@ func (a *App) LoadEnabledMods(showSnackbar bool) {
 		Total: len(modsConfig),
 	})
 
-	runtime.WindowSetTitle(a.ctx, fmt.Sprintf("Junimo - SMAPI 版本：v%s", a.ReadConfig("smapi_version")))
+	if SMAPIVersion != "" {
+		runtime.WindowSetTitle(a.ctx, fmt.Sprintf("Junimo - SMAPI 版本：v%s", SMAPIVersion))
+	}
 
 	if showSnackbar {
 		SnackbarShow(a.ctx, &SnackbarShowOptions{

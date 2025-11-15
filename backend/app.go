@@ -77,3 +77,33 @@ func (a *App) LogDirSize() int64 {
 
 	return totalSize
 }
+
+func (a *App) ValidateUser(apiKey string) *NexusUserValidateResult {
+	n := NewNexus()
+	r, err := n.ValidateUser(apiKey)
+	if err != nil {
+		log.Printf("验证 Nexus Mods 用户失败: %v", err)
+
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:          "验证 Nexus Mods 用户失败: " + err.Error(),
+			ShowIcon:         true,
+			AutoHideDuration: 6000,
+			Color:            SnackbarColorDanger,
+			Variant:          SnackbarVariantSoft,
+		})
+
+		return nil
+	}
+
+	SnackbarShow(a.ctx, &SnackbarShowOptions{
+		Message:          "验证 Nexus Mods 用户成功: " + r.Name,
+		ShowIcon:         true,
+		AutoHideDuration: 3000,
+		Color:            SnackbarColorSuccess,
+		Variant:          SnackbarVariantSoft,
+	})
+
+	log.Printf("验证 Nexus Mods 用户成功: %v", r)
+
+	return r
+}

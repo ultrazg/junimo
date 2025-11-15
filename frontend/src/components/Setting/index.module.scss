@@ -12,7 +12,7 @@
     margin-bottom: 1rem;
 
     &:last-child {
-      margin-bottom: 0;
+      margin-bottom: 4px;
     }
 
     .label {
@@ -20,6 +20,12 @@
 
     .value {
       margin-top: 12px;
+
+      .nexus-user-info {
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+      }
     }
   }
 }

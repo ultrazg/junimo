@@ -12,6 +12,7 @@ import {
   LoadEnabledMods,
   OpenLogDir,
   LogDirSize,
+  ValidateUser,
 } from '@/utils'
 import {
   Button,
@@ -20,10 +21,14 @@ import {
   Typography,
   useColorScheme,
   Switch,
+  Input,
+  Link,
+  Avatar,
 } from '@mui/joy'
 import styles from './index.module.scss'
 import FolderTwoToneIcon from '@mui/icons-material/FolderTwoTone'
 import BuildTwoToneIcon from '@mui/icons-material/BuildTwoTone'
+import VerifiedUserTwoToneIcon from '@mui/icons-material/VerifiedUserTwoTone'
 
 type IProps = {
   open: boolean
@@ -48,6 +53,15 @@ const Setting: React.FC<IProps> = ({ open, onClose }) => {
   const [gamePath, setGamePath] = useState<string>('')
   const [autoCheckForUpdate, setAutoCheckForUpdate] = useState<boolean>(true)
   const [logDirSize, setLogDirSize] = useState<number>(0)
+  const [nexusModsApiKey, setNexusModsApiKey] = useState<string>('')
+  const [nexusUserInfo, setNexusUserInfo] = useState<{
+    avatar: string
+    name: string
+  }>({
+    avatar: '',
+    name: '',
+  })
+  const [verifyLoading, setVerifyLoading] = useState<boolean>(false)
   const { setMode } = useColorScheme()
 
   const init = () => {
@@ -59,6 +73,24 @@ const Setting: React.FC<IProps> = ({ open, onClose }) => {
       setGamePath(res)
     })
 
+    ReadConfig('nexus_user_avatar').then((res: string) => {
+      setNexusUserInfo({
+        ...nexusUserInfo,
+        avatar: res,
+      })
+    })
+
+    ReadConfig('nexus_user_name').then((res: string) => {
+      setNexusUserInfo({
+        ...nexusUserInfo,
+        name: res,
+      })
+    })
+
+    ReadConfig('nexus_api_key').then((res: string) => {
+      setNexusModsApiKey(res)
+    })
+
     ReadConfig('auto_check_for_update').then((res: boolean) => {
       setAutoCheckForUpdate(res)
     })
@@ -66,6 +98,31 @@ const Setting: React.FC<IProps> = ({ open, onClose }) => {
     LogDirSize().then((res: number) => {
       setLogDirSize(res)
     })
+  }
+
+  const handleChangeNexusModsApiKey = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const key = event.target.value
+    setNexusModsApiKey(key)
+    UpdateConfig('nexus_api_key', key).then()
+  }
+
+  const handleVerifyNexusModsApiKey = () => {
+    setVerifyLoading(true)
+
+    ValidateUser(nexusModsApiKey)
+      .then((res) => {
+        UpdateConfig('nexus_user_avatar', res.profile_url).then()
+        UpdateConfig('nexus_user_name', res.name).then()
+        setNexusUserInfo({
+          name: res.name,
+          avatar: res.profile_url,
+        })
+      })
+      .finally(() => {
+        setVerifyLoading(false)
+      })
   }
 
   const handleChangeTheme = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -245,6 +302,45 @@ const Setting: React.FC<IProps> = ({ open, onClose }) => {
                 checked={autoCheckForUpdate}
                 onChange={handleChangeAutoCheckForUpdate}
               />
+            </div>
+          </div>
+
+          <div className={styles['setting-item']}>
+            <div className={styles['label']}>
+              <Typography level={'title-lg'}>
+                Nexus Mods API Key
+                <Typography level={'body-sm'}>
+                  （<Link>如何获取？</Link>）
+                </Typography>
+              </Typography>
+            </div>
+            <div className={styles['value']}>
+              <Input
+                size={'sm'}
+                value={nexusModsApiKey}
+                onChange={handleChangeNexusModsApiKey}
+              />
+              {nexusUserInfo.name !== '' && (
+                <div className={styles['nexus-user-info']}>
+                  <Button
+                    size={'sm'}
+                    variant={'soft'}
+                    disabled={!nexusModsApiKey}
+                    loading={verifyLoading}
+                    onClick={handleVerifyNexusModsApiKey}
+                  >
+                    <VerifiedUserTwoToneIcon />
+                    验证
+                  </Button>
+                  <Avatar
+                    size={'sm'}
+                    sx={{ ml: 1, mr: 1 }}
+                    alt={'nexus user avatar'}
+                    src={nexusUserInfo.avatar}
+                  />
+                  <span>{nexusUserInfo.name}</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
