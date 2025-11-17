@@ -7,7 +7,12 @@ import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined
 import FolderOpenOutlinedIcon from '@mui/icons-material/FolderOpenOutlined'
 import { IconButton, Table, Tooltip } from '@mui/joy'
 import styles from './index.module.scss'
-import { OpenModDir, RemoveModDir, DisableMod } from '@/utils'
+import {
+  OpenModDir,
+  RemoveModDir,
+  DisableMod,
+  ViewSpecifiedModFile,
+} from '@/utils'
 import { DeleteModal } from '@/components'
 
 type IProps = {
@@ -81,6 +86,19 @@ const EnabledMods: React.FC<IProps> = ({ mods, onEditConfigFileFunc }) => {
                     variant={'plain'}
                     size={'sm'}
                     color={'primary'}
+                    onClick={() => {
+                      // TODO
+                      if (mod.updateKeys) {
+                        const ids = mod.updateKeys
+                          .map((key) => key.match(/^Nexus:(\d+)$/))
+                          .filter(Boolean)
+                          .map((match) => match?.[1])
+
+                        ViewSpecifiedModFile(String(ids)).then((res) => {
+                          console.log(res)
+                        })
+                      }
+                    }}
                   >
                     <InfoOutlinedIcon />
                   </IconButton>

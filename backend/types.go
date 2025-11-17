@@ -64,7 +64,8 @@ type ListBackupDirsResult struct {
 }
 
 const (
-	ApiUsersValidate = "https://api.nexusmods.com/v1/users/validate.json"
+	ApiUsersValidate        = "https://api.nexusmods.com/v1/users/validate.json"
+	ApiViewSpecifiedModFile = "https://api.nexusmods.com/v1/games/stardewvalley/mods/%s/files.json"
 )
 
 type Client struct {
@@ -82,4 +83,41 @@ type NexusUserValidateResult struct {
 	Name       string `json:"name"`
 	Email      string `json:"email"`
 	ProfileUrl string `json:"profile_url"`
+}
+
+type NexusViewSpecifiedModFileResult struct {
+	Flag        bool          `json:"flag"`
+	Files       []Files       `json:"files"`
+	FileUpdates []FileUpdates `json:"file_updates"`
+}
+
+type Files struct {
+	Id                   []int  `json:"id"`
+	Uid                  int    `json:"uid"`
+	FileID               int    `json:"file_id"`
+	Name                 string `json:"name"`
+	Version              string `json:"version"`
+	CategoryID           int    `json:"category_id"`
+	CategoryName         string `json:"category_name"`
+	IsPrimary            bool   `json:"is_primary"`
+	Size                 int64  `json:"size"`
+	FileName             string `json:"file_name"`
+	UploadedTimestamp    int64  `json:"uploaded_timestamp"`
+	UploadedTime         string `json:"uploaded_time"`
+	ModVersion           string `json:"mod_version"`
+	ExternalVirusScanUrl string `json:"external_virus_scan_url"`
+	Description          string `json:"description"`
+	SizeKB               int64  `json:"size_kb"`
+	SizeInBytes          int64  `json:"size_in_bytes"`
+	ChangelogHtml        string `json:"changelog_html"`
+	ContentPreviewLink   string `json:"content_preview_link"`
+}
+
+type FileUpdates struct {
+	OldFileID         int    `json:"old_file_id"`
+	NewFileID         int    `json:"new_file_id"`
+	OldFileName       string `json:"old_file_name"`
+	NewFileName       string `json:"new_file_name"`
+	UploadedTimestamp int64  `json:"uploaded_timestamp"`
+	UploadedTime      string `json:"uploaded_time"`
 }

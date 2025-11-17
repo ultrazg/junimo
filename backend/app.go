@@ -11,11 +11,14 @@ import (
 
 type App struct {
 	ctx     context.Context
+	nexus   *Nexus
 	logFile *os.File
 }
 
 func NewApp() *App {
-	return &App{}
+	return &App{
+		nexus: NewNexus(),
+	}
 }
 
 func (a *App) Startup(ctx context.Context) {
@@ -79,8 +82,7 @@ func (a *App) LogDirSize() int64 {
 }
 
 func (a *App) ValidateUser(apiKey string) *NexusUserValidateResult {
-	n := NewNexus()
-	r, err := n.ValidateUser(apiKey)
+	r, err := a.nexus.ValidateUser(apiKey)
 	if err != nil {
 		log.Printf("验证 Nexus Mods 用户失败：%v", err)
 

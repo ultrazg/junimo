@@ -21,6 +21,7 @@ import {
   LogDirSize,
   RestoreBackup,
   ValidateUser,
+  ViewSpecifiedModFile,
 } from 'wailsjs/go/backend/App'
 import { EventsOn, BrowserOpenURL } from 'wailsjs/runtime'
 import { onSaveGamePath } from './fs'
@@ -55,4 +56,5 @@ export {
   RestoreBackup,
   BrowserOpenURL,
   ValidateUser,
+  ViewSpecifiedModFile,
 }
