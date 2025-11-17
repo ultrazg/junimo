@@ -76,6 +76,7 @@ type Nexus struct {
 }
 
 type NexusUserValidateResult struct {
+	Flag       bool   `json:"flag"`
 	UserID     int    `json:"user_id"`
 	Key        string `json:"key"`
 	Name       string `json:"name"`

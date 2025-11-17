@@ -62,6 +62,7 @@ const Setting: React.FC<IProps> = ({ open, onClose }) => {
     name: '',
   })
   const [verifyLoading, setVerifyLoading] = useState<boolean>(false)
+  const [isFocus, setIsFocus] = useState<boolean>(false)
   const { setMode } = useColorScheme()
 
   const init = () => {
@@ -113,12 +114,14 @@ const Setting: React.FC<IProps> = ({ open, onClose }) => {
 
     ValidateUser(nexusModsApiKey)
       .then((res) => {
-        UpdateConfig('nexus_user_avatar', res.profile_url).then()
-        UpdateConfig('nexus_user_name', res.name).then()
-        setNexusUserInfo({
-          name: res.name,
-          avatar: res.profile_url,
-        })
+        if (res.flag) {
+          UpdateConfig('nexus_user_avatar', res.profile_url).then()
+          UpdateConfig('nexus_user_name', res.name).then()
+          setNexusUserInfo({
+            name: res.name,
+            avatar: res.profile_url,
+          })
+        }
       })
       .finally(() => {
         setVerifyLoading(false)
@@ -316,31 +319,37 @@ const Setting: React.FC<IProps> = ({ open, onClose }) => {
             </div>
             <div className={styles['value']}>
               <Input
+                className={isFocus ? '' : styles['blur-text']}
                 size={'sm'}
                 value={nexusModsApiKey}
                 onChange={handleChangeNexusModsApiKey}
+                placeholder={'请输入 Nexus Mods API Key'}
+                onFocus={() => setIsFocus(true)}
+                onBlur={() => setIsFocus(false)}
               />
-              {nexusUserInfo.name !== '' && (
-                <div className={styles['nexus-user-info']}>
-                  <Button
-                    size={'sm'}
-                    variant={'soft'}
-                    disabled={!nexusModsApiKey}
-                    loading={verifyLoading}
-                    onClick={handleVerifyNexusModsApiKey}
-                  >
-                    <VerifiedUserTwoToneIcon />
-                    验证
-                  </Button>
-                  <Avatar
-                    size={'sm'}
-                    sx={{ ml: 1, mr: 1 }}
-                    alt={'nexus user avatar'}
-                    src={nexusUserInfo.avatar}
-                  />
-                  <span>{nexusUserInfo.name}</span>
-                </div>
-              )}
+              <div className={styles['nexus-user-info']}>
+                <Button
+                  size={'sm'}
+                  variant={'soft'}
+                  disabled={!nexusModsApiKey}
+                  loading={verifyLoading}
+                  onClick={handleVerifyNexusModsApiKey}
+                >
+                  <VerifiedUserTwoToneIcon />
+                  验证
+                </Button>
+                {nexusUserInfo.name !== '' && (
+                  <React.Fragment>
+                    <Avatar
+                      size={'sm'}
+                      sx={{ ml: 1, mr: 1 }}
+                      alt={'nexus user avatar'}
+                      src={nexusUserInfo.avatar}
+                    />
+                    <span>{nexusUserInfo.name}</span>
+                  </React.Fragment>
+                )}
+              </div>
             </div>
           </div>
         </div>

@@ -4,11 +4,33 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"time"
 )
+
+var msgFlag = map[int]string{
+	http.StatusOK:                  "OK",
+	http.StatusBadRequest:          "错误请求",
+	http.StatusUnauthorized:        "身份验证失败，请检查 Nexus Mods API Key 是否正确",
+	http.StatusForbidden:           "拒绝访问",
+	http.StatusNotFound:            "404 Not Found",
+	http.StatusInternalServerError: "内部服务器错误",
+	http.StatusBadGateway:          "网关错误",
+	http.StatusServiceUnavailable:  "服务不可用",
+	http.StatusGatewayTimeout:      "网关超时",
+}
+
+func getStatusMsg(statusCode int) string {
+	msg, ok := msgFlag[statusCode]
+	if ok {
+		return msg
+	}
+
+	return fmt.Sprintf("网络异常: %d", statusCode)
+}
 
 func NewClient(apiKey string) (*Client, error) {
 	if apiKey == "" {
@@ -39,9 +61,14 @@ func (c *Client) GetJSON(url string, target any) error {
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		log.Printf("GET 请求 %s 失败：%d %s", url, resp.StatusCode, resp.Status)
+		return fmt.Errorf("%s", getStatusMsg(resp.StatusCode))
+	}
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("读取响应体失败: %v", err)
+		log.Printf("读取响应体失败：%v", err)
 		return err
 	}
 
@@ -72,9 +99,14 @@ func (c *Client) PostJSON(url string, data, target any) error {
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		log.Printf("POST 请求 %s 失败：%d %s", url, resp.StatusCode, resp.Status)
+		return fmt.Errorf("%s", getStatusMsg(resp.StatusCode))
+	}
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("读取响应体失败: %v", err)
+		log.Printf("读取响应体失败：%v", err)
 		return err
 	}
 

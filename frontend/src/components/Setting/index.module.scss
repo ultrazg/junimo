@@ -21,6 +21,10 @@
     .value {
       margin-top: 12px;
 
+      .blur-text > input {
+        filter: blur(4px);
+      }
+
       .nexus-user-info {
         margin-top: 8px;
         display: flex;
