@@ -608,3 +608,54 @@ func (a *App) EnableMod(path string) {
 		AutoHideDuration: 3000,
 	})
 }
+
+func (a *App) ViewSpecifiedModFile(modID string) *NexusViewSpecifiedModFileResult {
+	r, err := a.nexus.ViewSpecifiedModFile(modID)
+	if err != nil {
+		log.Printf("查看 Mod 文件失败：%v", err)
+
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:          fmt.Sprintf("查看 Mod 文件失败：%v", err),
+			ShowIcon:         true,
+			AutoHideDuration: 6000,
+			Color:            SnackbarColorDanger,
+			Variant:          SnackbarVariantSoft,
+		})
+
+		return &NexusViewSpecifiedModFileResult{
+			Flag: false,
+		}
+	}
+
+	log.Println("查看 Mod 文件成功")
+
+	return &NexusViewSpecifiedModFileResult{
+		Flag:        true,
+		Files:       r.Files,
+		FileUpdates: r.FileUpdates,
+	}
+}
+
+func (a *App) ImportMod() {
+	files, err := runtime.OpenMultipleFilesDialog(a.ctx, runtime.OpenDialogOptions{
+		Title: "请选择 Mod 文件",
+		Filters: []runtime.FileFilter{
+			{
+				DisplayName: "Mod 文件 (*.zip)",
+				Pattern:     "*.zip",
+			},
+		},
+	})
+	if err != nil {
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:          fmt.Sprintf("导入 Mod 文件失败：%v", err),
+			ShowIcon:         true,
+			AutoHideDuration: 6000,
+			Color:            SnackbarColorDanger,
+			Variant:          SnackbarVariantSoft,
+		})
+		return
+	}
+
+	fmt.Println(files)
+}

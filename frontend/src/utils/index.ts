@@ -22,6 +22,7 @@ import {
   RestoreBackup,
   ValidateUser,
   ViewSpecifiedModFile,
+  ImportMod,
 } from 'wailsjs/go/backend/App'
 import { EventsOn, BrowserOpenURL } from 'wailsjs/runtime'
 import { onSaveGamePath } from './fs'
@@ -57,4 +58,5 @@ export {
   BrowserOpenURL,
   ValidateUser,
   ViewSpecifiedModFile,
+  ImportMod,
 }

@@ -15,7 +15,12 @@ import SourceOutlinedIcon from '@mui/icons-material/SourceOutlined'
 import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone'
 import styles from './index.module.scss'
 import { About, Setting, BackupModal } from '@/components'
-import { LoadEnabledMods, LoadDisabledMods, BackupModDir } from '@/utils'
+import {
+  LoadEnabledMods,
+  LoadDisabledMods,
+  BackupModDir,
+  ImportMod,
+} from '@/utils'
 import SMAPI_ICON from '@/assets/images/smapi_icon.png'
 
 const MenuOptions = ['通过 SMAPI', '通过 Nexus Mods API']
@@ -65,7 +70,12 @@ const MenuBar = () => {
           color={'primary'}
           size={'sm'}
         >
-          <IconButton title={'启动 SMAPI'}>
+          <IconButton
+            title={'启动 SMAPI'}
+            onClick={() => {
+              ImportMod().then()
+            }}
+          >
             <img
               src={SMAPI_ICON}
               alt={'SMAPI_ICON'}
