@@ -7,20 +7,20 @@ import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined
 import FolderOpenOutlinedIcon from '@mui/icons-material/FolderOpenOutlined'
 import { IconButton, Table, Tooltip } from '@mui/joy'
 import styles from './index.module.scss'
-import {
-  OpenModDir,
-  RemoveModDir,
-  DisableMod,
-  ViewSpecifiedModFile,
-} from '@/utils'
+import { OpenModDir, RemoveModDir, DisableMod } from '@/utils'
 import { DeleteModal } from '@/components'
 
 type IProps = {
   mods: ModManifestType[]
   onEditConfigFileFunc: (modName: string, configPath: string) => void
+  onModInfoFunc: (modManifest: ModManifestType) => void
 }
 
-const EnabledMods: React.FC<IProps> = ({ mods, onEditConfigFileFunc }) => {
+const EnabledMods: React.FC<IProps> = ({
+  mods,
+  onEditConfigFileFunc,
+  onModInfoFunc,
+}) => {
   const [deleteModal, setDeleteModal] = useState<{
     loading: boolean
     open: boolean
@@ -87,17 +87,7 @@ const EnabledMods: React.FC<IProps> = ({ mods, onEditConfigFileFunc }) => {
                     size={'sm'}
                     color={'primary'}
                     onClick={() => {
-                      // TODO
-                      if (mod.updateKeys) {
-                        const ids = mod.updateKeys
-                          .map((key) => key.match(/^Nexus:(\d+)$/))
-                          .filter(Boolean)
-                          .map((match) => match?.[1])
-
-                        ViewSpecifiedModFile(String(ids)).then((res) => {
-                          console.log(res)
-                        })
-                      }
+                      onModInfoFunc(mod)
                     }}
                   >
                     <InfoOutlinedIcon />

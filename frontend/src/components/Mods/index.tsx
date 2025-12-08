@@ -6,6 +6,7 @@ import styles from './index.module.scss'
 import { ModConfigModal } from '@/components'
 import EnabledMods from './components/EnabledMods'
 import DisabledMods from './components/DisabledMods'
+import ModInfoModal from './components/ModInfoModal'
 import { ModManifestType } from '@/types'
 
 const Mods = () => {
@@ -23,6 +24,25 @@ const Mods = () => {
     open: false,
     configStr: '',
     path: '',
+  })
+  const [modInfoModal, setModInfoModal] = useState<{
+    mod: ModManifestType
+    open: boolean
+  }>({
+    mod: {
+      name: '',
+      author: '',
+      version: '',
+      minimumApiVersion: '',
+      description: '',
+      uniqueID: '',
+      entryDll: '',
+      updateKeys: [],
+      manifestPath: '',
+      modPath: '',
+      configPath: '',
+    },
+    open: false,
   })
 
   useEffect(() => {
@@ -59,6 +79,13 @@ const Mods = () => {
     })
   }
 
+  const onModInfoShow = (mod: ModManifestType) => {
+    setModInfoModal({
+      mod,
+      open: true,
+    })
+  }
+
   return (
     <div className={styles['mods-wrapper']}>
       <Tabs defaultValue={0}>
@@ -76,13 +103,17 @@ const Mods = () => {
           <EnabledMods
             mods={enabledMods}
             onEditConfigFileFunc={onEditConfigFile}
+            onModInfoFunc={onModInfoShow}
           />
         </TabPanel>
         <TabPanel
           value={1}
           style={{ padding: 0 }}
         >
-          <DisabledMods mods={disabledMods} />
+          <DisabledMods
+            mods={disabledMods}
+            onModInfoFunc={onModInfoShow}
+          />
         </TabPanel>
       </Tabs>
 
@@ -97,6 +128,29 @@ const Mods = () => {
             open: false,
             configStr: '',
             path: '',
+          })
+        }
+      />
+
+      <ModInfoModal
+        mod={modInfoModal.mod}
+        open={modInfoModal.open}
+        onClose={() =>
+          setModInfoModal({
+            mod: {
+              name: '',
+              author: '',
+              version: '',
+              minimumApiVersion: '',
+              description: '',
+              uniqueID: '',
+              entryDll: '',
+              updateKeys: [],
+              manifestPath: '',
+              modPath: '',
+              configPath: '',
+            },
+            open: false,
           })
         }
       />

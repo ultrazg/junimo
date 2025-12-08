@@ -23,9 +23,10 @@ import {
   ValidateUser,
   ViewSpecifiedModFile,
   ImportMod,
+  ViewModSize,
 } from 'wailsjs/go/backend/App'
 import { EventsOn, BrowserOpenURL } from 'wailsjs/runtime'
-import { onSaveGamePath } from './fs'
+import { onSaveGamePath, formatBytes } from './fs'
 import { snackbar } from '@/providers/SnackbarProvider'
 
 export {
@@ -59,4 +60,6 @@ export {
   ValidateUser,
   ViewSpecifiedModFile,
   ImportMod,
+  ViewModSize,
+  formatBytes,
 }

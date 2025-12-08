@@ -636,6 +636,22 @@ func (a *App) ViewSpecifiedModFile(modID string) *NexusViewSpecifiedModFileResul
 	}
 }
 
+func (a *App) ViewModSize(path string) int64 {
+	size, err := CalcDirSize(path)
+	if err != nil {
+		log.Printf("计算 Mod 目录大小失败：%v", err)
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:          fmt.Sprintf("计算 Mod 目录大小时出错：%v", err),
+			ShowIcon:         true,
+			AutoHideDuration: 6000,
+			Color:            SnackbarColorDanger,
+			Variant:          SnackbarVariantSoft,
+		})
+		return 0
+	}
+	return size
+}
+
 func (a *App) ImportMod() {
 	files, err := runtime.OpenMultipleFilesDialog(a.ctx, runtime.OpenDialogOptions{
 		Title: "请选择 Mod 文件",

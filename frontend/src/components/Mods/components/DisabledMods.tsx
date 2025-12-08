@@ -9,9 +9,10 @@ import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined'
 
 type IProps = {
   mods: ModManifestType[]
+  onModInfoFunc: (modManifest: ModManifestType) => void
 }
 
-const DisabledMods: React.FC<IProps> = ({ mods }) => {
+const DisabledMods: React.FC<IProps> = ({ mods, onModInfoFunc }) => {
   return (
     <div className={styles['mods-wrapper']}>
       <Table
@@ -50,6 +51,7 @@ const DisabledMods: React.FC<IProps> = ({ mods }) => {
                     variant={'plain'}
                     size={'sm'}
                     color={'primary'}
+                    onClick={() => onModInfoFunc(mod)}
                   >
                     <InfoOutlinedIcon />
                   </IconButton>
