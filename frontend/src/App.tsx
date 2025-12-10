@@ -24,7 +24,7 @@ const App = () => {
     initStyleMode()
 
     const showSnackbar = EventsOn(
-      'snackbarShow',
+      'snackbar:show',
       (options: SnackbarOptions & { message: string }) => {
         snackbar.show(options.message, {
           showIcon: options.showIcon,

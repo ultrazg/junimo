@@ -10,6 +10,7 @@ func NewNexus() *Nexus {
 	return &Nexus{}
 }
 
+// ValidateUser 检查 API 密钥是否有效并返回用户的详细信息
 func (n *Nexus) ValidateUser(apiKey string) (*NexusUserValidateResult, error) {
 	client, err := NewClient(apiKey)
 	if err != nil {
@@ -25,6 +26,7 @@ func (n *Nexus) ValidateUser(apiKey string) (*NexusUserValidateResult, error) {
 	return result, nil
 }
 
+// ViewSpecifiedModFile 根据 ModID 获取 Mod 的所有文件
 func (n *Nexus) ViewSpecifiedModFile(modID string) (*NexusViewSpecifiedModFileResult, error) {
 	apiKey := viper.GetString("nexus_api_key")
 	if apiKey == "" {

@@ -24,6 +24,7 @@ import {
   ViewSpecifiedModFile,
   ImportMod,
   ViewModSize,
+  CheckForUpdatesBySMAPI,
 } from 'wailsjs/go/backend/App'
 import { EventsOn, BrowserOpenURL } from 'wailsjs/runtime'
 import { onSaveGamePath, formatBytes } from './fs'
@@ -62,4 +63,5 @@ export {
   ImportMod,
   ViewModSize,
   formatBytes,
+  CheckForUpdatesBySMAPI,
 }

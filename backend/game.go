@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -16,6 +18,8 @@ import (
 const SMAPIExecFileName = "StardewModdingAPI.exe"
 const ModManifestFileName = "manifest.json"
 const ModConfigFileName = "config.json"
+
+var nexusKeyRe = regexp.MustCompile(`Nexus:(\d+)`)
 
 func (a *App) SaveGamePath() SaveGamePathResultFlag {
 	options := runtime.OpenDialogOptions{
@@ -134,7 +138,7 @@ func (a *App) LoadEnabledMods(showSnackbar bool) {
 		}
 	}
 
-	runtime.EventsEmit(a.ctx, "LoadEnabledMods", LoadModsOptions{
+	runtime.EventsEmit(a.ctx, "mod:loadEnabled", LoadModsOptions{
 		Mods:  modsConfig,
 		Total: len(modsConfig),
 	})
@@ -197,7 +201,7 @@ func (a *App) LoadDisabledMods() {
 		}
 	}
 
-	runtime.EventsEmit(a.ctx, "LoadDisabledMods", LoadModsOptions{
+	runtime.EventsEmit(a.ctx, "mod:loadDisabled", LoadModsOptions{
 		Mods:  disabledModsConfig,
 		Total: len(disabledModsConfig),
 	})
@@ -609,6 +613,7 @@ func (a *App) EnableMod(path string) {
 	})
 }
 
+// TODO
 func (a *App) ViewSpecifiedModFile(modID string) *NexusViewSpecifiedModFileResult {
 	r, err := a.nexus.ViewSpecifiedModFile(modID)
 	if err != nil {
@@ -652,6 +657,7 @@ func (a *App) ViewModSize(path string) int64 {
 	return size
 }
 
+// TODO
 func (a *App) ImportMod() {
 	files, err := runtime.OpenMultipleFilesDialog(a.ctx, runtime.OpenDialogOptions{
 		Title: "请选择 Mod 文件",
@@ -674,4 +680,79 @@ func (a *App) ImportMod() {
 	}
 
 	fmt.Println(files)
+}
+
+func getNexusKey(inputs []string) (int, bool) {
+	for _, s := range inputs {
+		if s == "" {
+			continue
+		}
+
+		m := nexusKeyRe.FindStringSubmatch(s)
+		if len(m) != 2 {
+			continue
+		}
+
+		v, err := strconv.Atoi(m[1])
+		if err != nil {
+			continue
+		}
+		return v, true
+	}
+	return 0, false
+}
+
+// TODO
+func (a *App) CheckForUpdatesBySMAPI() {
+	NexusApiKey := a.ReadConfig("nexus_api_key").(string)
+	if NexusApiKey == "" {
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:          "请先在设置中配置 Nexus API Key",
+			ShowIcon:         true,
+			AutoHideDuration: 6000,
+			Color:            SnackbarColorDanger,
+			Variant:          SnackbarVariantSoft,
+		})
+		return
+	}
+
+	gamePath := a.ReadConfig("game_path").(string)
+	modsPath := filepath.Join(gamePath, "Mods")
+	mods, err := os.ReadDir(modsPath)
+	if err != nil {
+		log.Printf("读取 Mods 目录失败: %v", err)
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:          fmt.Sprintf("无法读取 Mods 目录，请先在设置中配置或检查游戏目录: %v", err),
+			ShowIcon:         true,
+			Color:            SnackbarColorDanger,
+			Variant:          SnackbarVariantSoft,
+			AutoHideDuration: 6000,
+		})
+		return
+	}
+
+	for _, mod := range mods {
+		if mod.IsDir() {
+			modManifestPath := findModManifestFile(filepath.Join(modsPath, mod.Name()))
+			if modManifestPath != "" {
+				modManifest, err := parseManifestFile(a, modManifestPath)
+				if err != nil {
+					log.Printf("解析 ModManifest 文件 %s 失败: %v", modManifestPath, err)
+
+					SnackbarShow(a.ctx, &SnackbarShowOptions{
+						Message:  fmt.Sprintf("解析 ModManifest 文件 %s 失败: %v", modManifestPath, err),
+						ShowIcon: true,
+						Color:    SnackbarColorDanger,
+						Variant:  SnackbarVariantSoft,
+					})
+
+					continue
+				}
+
+				if key, ok := getNexusKey(modManifest.UpdateKeys); ok {
+					fmt.Printf("mod %s key: %d\n", mod.Name(), key)
+				}
+			}
+		}
+	}
 }

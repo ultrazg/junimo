@@ -47,7 +47,7 @@ const Mods = () => {
 
   useEffect(() => {
     const onLoadEnabledMods = EventsOn(
-      'LoadEnabledMods',
+      'mod:loadEnabled',
       (data: { mods: ModManifestType[]; total: number }) => {
         setEnabledMods(data.mods)
         setEnabledModsTotal(data.total)
@@ -55,7 +55,7 @@ const Mods = () => {
     )
 
     const onDisabledMods = EventsOn(
-      'LoadDisabledMods',
+      'mod:loadDisabled',
       (data: { mods: ModManifestType[]; total: number }) => {
         setDisabledMods(data.mods)
         setDisabledModsTotal(data.total)

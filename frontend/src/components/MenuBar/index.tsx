@@ -20,10 +20,21 @@ import {
   LoadDisabledMods,
   BackupModDir,
   ImportMod,
+  CheckForUpdatesBySMAPI,
 } from '@/utils'
 import SMAPI_ICON from '@/assets/images/smapi_icon.png'
 
-const MenuOptions = ['通过 SMAPI', '通过 Nexus Mods API']
+const MenuOptions = [
+  {
+    menu_name: '通过 SMAPI',
+    menu_description: '通过 SMAPI 来检查 Mod 的更新，需要启动游戏',
+  },
+  {
+    menu_name: '通过 Nexus Mods API',
+    menu_description:
+      '通过 Nexus Mods API 来检查 Mod 的更新，需要提供 Nexus Mods API Key',
+  },
+]
 
 const MenuBar = () => {
   const actionRef = React.useRef<() => void>(null)
@@ -37,6 +48,9 @@ const MenuBar = () => {
 
   const handleMenuItemClick = (index: number) => {
     console.log(index)
+    if (index === 1) {
+      CheckForUpdatesBySMAPI().then()
+    }
     setOpen(false)
   }
 
@@ -129,10 +143,11 @@ const MenuBar = () => {
           >
             {MenuOptions.map((option, index) => (
               <MenuItem
-                key={option}
+                key={option.menu_name}
+                title={option.menu_description}
                 onClick={() => handleMenuItemClick(index)}
               >
-                {option}
+                {option.menu_name}
               </MenuItem>
             ))}
           </Menu>

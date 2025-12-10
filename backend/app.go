@@ -60,7 +60,7 @@ func (a *App) Shutdown(ctx context.Context) {
 }
 
 func SnackbarShow(ctx context.Context, options *SnackbarShowOptions) {
-	runtime.EventsEmit(ctx, "snackbarShow", options)
+	runtime.EventsEmit(ctx, "snackbar:show", options)
 }
 
 func (a *App) LogDirSize() int64 {
