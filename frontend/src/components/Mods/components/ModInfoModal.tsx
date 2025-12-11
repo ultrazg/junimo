@@ -11,14 +11,6 @@ type IProps = {
   mod: ModManifestType
 }
 
-const getValueByKey = (
-  updateKeys: string[],
-  targetKey: string,
-): string | undefined => {
-  const item = updateKeys.find((v) => v.startsWith(`${targetKey}:`))
-  return item?.split(':')[1]
-}
-
 const ModInfoModal = ({ open, onClose, mod }: IProps) => {
   const [size, setSize] = useState(0)
   const [loading, setLoading] = useState<boolean>(false)
@@ -65,23 +57,24 @@ const ModInfoModal = ({ open, onClose, mod }: IProps) => {
           <span style={{ color: '#ccc' }}>描述：</span>
           {mod.description}
         </div>
-        {mod.updateKeys && (
+        {mod.nexusKey !== 0 && (
           <React.Fragment>
             <div>
               <span style={{ color: '#ccc' }}>Nexus 尾号：</span>
-              {getValueByKey(mod.updateKeys, 'Nexus')}
+              {mod.nexusKey}
             </div>
             <div style={{ display: 'flex' }}>
               <span style={{ color: '#ccc' }}>Nexus 主页：</span>
               <Link
                 style={{ flex: 1 }}
+                title={'点击访问'}
                 onClick={() =>
                   BrowserOpenURL(
-                    `https://www.nexusmods.com/stardewvalley/mods/${getValueByKey(mod.updateKeys, 'Nexus')}`,
+                    `https://www.nexusmods.com/stardewvalley/mods/${mod.nexusKey}`,
                   )
                 }
               >
-                {`https://www.nexusmods.com/stardewvalley/mods/${getValueByKey(mod.updateKeys, 'Nexus')}`}
+                {`https://www.nexusmods.com/stardewvalley/mods/${mod.nexusKey}`}
               </Link>
             </div>
           </React.Fragment>

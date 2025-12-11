@@ -13,6 +13,7 @@ import SyncTwoToneIcon from '@mui/icons-material/SyncTwoTone'
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined'
 import SourceOutlinedIcon from '@mui/icons-material/SourceOutlined'
 import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone'
+import AddTwoToneIcon from '@mui/icons-material/AddTwoTone'
 import styles from './index.module.scss'
 import { About, Setting, BackupModal } from '@/components'
 import {
@@ -84,12 +85,7 @@ const MenuBar = () => {
           color={'primary'}
           size={'sm'}
         >
-          <IconButton
-            title={'启动 SMAPI'}
-            onClick={() => {
-              ImportMod().then()
-            }}
-          >
+          <IconButton title={'启动 SMAPI'}>
             <img
               src={SMAPI_ICON}
               alt={'SMAPI_ICON'}
@@ -113,6 +109,21 @@ const MenuBar = () => {
               level="title-md"
             >
               设置
+            </Typography>
+          </IconButton>
+
+          <IconButton
+            title={'导入 ZIP 格式的 Mod 文件'}
+            onClick={() => {
+              ImportMod().then()
+            }}
+          >
+            <AddTwoToneIcon />
+            <Typography
+              className={styles['button-text']}
+              level="title-md"
+            >
+              导入 Mod
             </Typography>
           </IconButton>
 

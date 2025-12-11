@@ -268,6 +268,9 @@ func parseManifestFile(a *App, path string) (ModManifestJson, error) {
 			modManifest.UpdateKeys = append(modManifest.UpdateKeys, v.String())
 		}
 	}
+	if key, ok := getNexusKey(modManifest.UpdateKeys); ok {
+		modManifest.NexusKey = key
+	}
 
 	//
 	if gjson.Get(jsonStr, "Name").String() == "Console Commands" {
@@ -731,6 +734,8 @@ func (a *App) CheckForUpdatesBySMAPI() {
 		return
 	}
 
+	var modsConfig []ModManifestJson
+
 	for _, mod := range mods {
 		if mod.IsDir() {
 			modManifestPath := findModManifestFile(filepath.Join(modsPath, mod.Name()))
@@ -747,10 +752,8 @@ func (a *App) CheckForUpdatesBySMAPI() {
 					})
 
 					continue
-				}
-
-				if key, ok := getNexusKey(modManifest.UpdateKeys); ok {
-					fmt.Printf("mod %s key: %d\n", mod.Name(), key)
+				} else {
+					modsConfig = append(modsConfig, modManifest)
 				}
 			}
 		}

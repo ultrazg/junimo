@@ -46,3 +46,8 @@ func (n *Nexus) ViewSpecifiedModFile(modID string) (*NexusViewSpecifiedModFileRe
 
 	return result, nil
 }
+
+// TODO
+func (n *Nexus) CheckForUpdate(mods []ModManifestJson) {
+
+}

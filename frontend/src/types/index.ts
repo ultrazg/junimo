@@ -7,6 +7,7 @@ export type ModManifestType = {
   uniqueID: string
   entryDll: string
   updateKeys: string[]
+  nexusKey: number
   manifestPath: string
   modPath: string
   configPath: string

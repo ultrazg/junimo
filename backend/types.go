@@ -47,6 +47,7 @@ type ModManifestJson struct {
 	UniqueID          string   `json:"uniqueID"`
 	EntryDll          string   `json:"entryDll"`
 	UpdateKeys        []string `json:"updateKeys"`
+	NexusKey          int      `json:"nexusKey"`
 	ManifestPath      string   `json:"manifestPath"`
 	ModPath           string   `json:"modPath"`
 	ConfigPath        string   `json:"configPath"`
@@ -64,7 +65,10 @@ type ListBackupDirsResult struct {
 }
 
 const (
-	ApiUsersValidate        = "https://api.nexusmods.com/v1/users/validate.json"
+	// 检查 API 密钥是否有效并返回用户的详细信息
+	ApiUsersValidate = "https://api.nexusmods.com/v1/users/validate.json"
+
+	// 根据 ModID 获取 Mod 的所有文件
 	ApiViewSpecifiedModFile = "https://api.nexusmods.com/v1/games/stardewvalley/mods/%s/files.json"
 )
 
