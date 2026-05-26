@@ -17,6 +17,7 @@ var msgFlag = map[int]string{
 	http.StatusUnauthorized:        "身份验证失败，请检查 Nexus Mods API Key 是否正确",
 	http.StatusForbidden:           "拒绝访问",
 	http.StatusNotFound:            "404 Not Found",
+	http.StatusTooManyRequests:     "Nexus Mods API 请求超过限制，请稍后再试",
 	http.StatusInternalServerError: "内部服务器错误",
 	http.StatusBadGateway:          "网关错误",
 	http.StatusServiceUnavailable:  "服务不可用",
@@ -61,9 +62,25 @@ func (c *Client) GetJSON(url string, target any) error {
 	}
 	defer resp.Body.Close()
 
+	hourlyLimit := resp.Header.Get("X-Rl-Hourly-Limit")
+	hourlyRemaining := resp.Header.Get("X-Rl-Hourly-Remaining")
+	hourlyReset := resp.Header.Get("X-Rl-Hourly-Reset")
+	dailyLimit := resp.Header.Get("X-Rl-Daily-Limit")
+	dailyRemaining := resp.Header.Get("X-Rl-Daily-Remaining")
+	dailyReset := resp.Header.Get("X-Rl-Daily-Reset")
+
 	if resp.StatusCode != http.StatusOK {
 		log.Printf("GET 请求 %s 失败：%d %s", url, resp.StatusCode, resp.Status)
-		return fmt.Errorf("%s", getStatusMsg(resp.StatusCode))
+		statusMsg := getStatusMsg(resp.StatusCode)
+		if resp.StatusCode == http.StatusTooManyRequests {
+			statusMsg = fmt.Sprintf(
+				"%s，当前小时限制：%s，当前小时剩余：%s，当前小时重置时间：%s，当前天限制：%s，当前天剩余：%s，当前天重置时间：%s",
+				statusMsg,
+				hourlyLimit, hourlyRemaining, hourlyReset,
+				dailyLimit, dailyRemaining, dailyReset,
+			)
+		}
+		return fmt.Errorf("%s", statusMsg)
 	}
 
 	body, err := io.ReadAll(resp.Body)
@@ -72,9 +89,28 @@ func (c *Client) GetJSON(url string, target any) error {
 		return err
 	}
 
+	var data map[string]any
+	if err := json.Unmarshal(body, &data); err != nil {
+		return err
+	}
+
+	data["rate_limit"] = map[string]string{
+		"hourly_limit":     hourlyLimit,
+		"hourly_remaining": hourlyRemaining,
+		"hourly_reset":     hourlyReset,
+		"daily_limit":      dailyLimit,
+		"daily_remaining":  dailyRemaining,
+		"daily_reset":      dailyReset,
+	}
+
+	mergedBody, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+
 	log.Printf("GET 请求 %s", url)
 
-	return json.Unmarshal(body, target)
+	return json.Unmarshal(mergedBody, target)
 }
 
 func (c *Client) PostJSON(url string, data, target any) error {

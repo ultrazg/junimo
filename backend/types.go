@@ -81,12 +81,22 @@ type Nexus struct {
 }
 
 type NexusUserValidateResult struct {
-	Flag       bool   `json:"flag"`
-	UserID     int    `json:"user_id"`
-	Key        string `json:"key"`
-	Name       string `json:"name"`
-	Email      string `json:"email"`
-	ProfileUrl string `json:"profile_url"`
+	Flag       bool              `json:"flag"`
+	UserID     int               `json:"user_id"`
+	Key        string            `json:"key"`
+	Name       string            `json:"name"`
+	Email      string            `json:"email"`
+	ProfileUrl string            `json:"profile_url"`
+	RateLimit  NexusAPIRateLimit `json:"rate_limit"`
+}
+
+type NexusAPIRateLimit struct {
+	HourlyLimit     string `json:"hourly_limit"`
+	HourlyRemaining string `json:"hourly_remaining"`
+	HourlyReset     string `json:"hourly_reset"`
+	DailyLimit      string `json:"daily_limit"`
+	DailyRemaining  string `json:"daily_remaining"`
+	DailyReset      string `json:"daily_reset"`
 }
 
 type NexusViewSpecifiedModFileResult struct {

@@ -1,12 +1,14 @@
 package backend
 
 import (
+	"archive/zip"
 	"fmt"
 	"io"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 )
 
 func openDir(path string) error {
@@ -378,6 +380,69 @@ func clearDir(path string) error {
 	}
 
 	log.Printf("清空目录 %s 成功", path)
+
+	return nil
+}
+
+func Unzip(zipPath, dstPath string) error {
+	reader, err := zip.OpenReader(zipPath)
+	if err != nil {
+		return fmt.Errorf("failed to open zip file: %w", err)
+	}
+	defer reader.Close()
+
+	dstPath, err = filepath.Abs(dstPath)
+	if err != nil {
+		return fmt.Errorf("failed to resolve absolute path: %w", err)
+	}
+
+	for _, file := range reader.File {
+		err := extractFile(file, dstPath)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func extractFile(file *zip.File, dstPath string) error {
+	targetPath := filepath.Join(dstPath, file.Name)
+
+	if !strings.HasPrefix(filepath.Clean(targetPath)+string(os.PathSeparator), dstPath+string(os.PathSeparator)) {
+		return fmt.Errorf("illegal file path (zip slip?): %s", file.Name)
+	}
+
+	if file.FileInfo().IsDir() {
+		if err := os.MkdirAll(targetPath, file.Mode()); err != nil {
+			return fmt.Errorf("failed to create directory %s: %w", targetPath, err)
+		}
+		return nil
+	}
+
+	if err := os.MkdirAll(filepath.Dir(targetPath), os.ModePerm); err != nil {
+		return fmt.Errorf("failed to create parent directory: %w", err)
+	}
+
+	rc, err := file.Open()
+	if err != nil {
+		return fmt.Errorf("failed to open zipped file %s: %w", file.Name, err)
+	}
+	defer rc.Close()
+
+	wc, err := os.OpenFile(targetPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, file.Mode())
+	if err != nil {
+		return fmt.Errorf("failed to create file %s: %w", targetPath, err)
+	}
+
+	_, err = io.Copy(wc, rc)
+	closeErr := wc.Close()
+	if closeErr != nil {
+		log.Printf("warning: failed to close file %s: %v", targetPath, closeErr)
+	}
+
+	if err != nil {
+		return fmt.Errorf("failed to copy data to file %s: %w", targetPath, err)
+	}
 
 	return nil
 }

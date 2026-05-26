@@ -2,6 +2,7 @@ package backend
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -100,7 +101,8 @@ func (a *App) ValidateUser(apiKey string) *NexusUserValidateResult {
 	}
 
 	SnackbarShow(a.ctx, &SnackbarShowOptions{
-		Message:          "验证 Nexus Mods 用户成功：" + r.Name,
+		Message: fmt.Sprintf("验证 Nexus Mods 用户成功！\r\n已登录用户：%s\r\nNexus Mods API 速率限制：\r\n当前小时限制：%s，当前小时剩余：%s，当前小时重置时间：%s\r\n当前天限制：%s，当前天剩余：%s，当前天重置时间：%s",
+			r.Name, r.RateLimit.HourlyLimit, r.RateLimit.HourlyRemaining, r.RateLimit.HourlyReset, r.RateLimit.DailyLimit, r.RateLimit.DailyRemaining, r.RateLimit.DailyReset),
 		ShowIcon:         true,
 		AutoHideDuration: 3000,
 		Color:            SnackbarColorSuccess,
