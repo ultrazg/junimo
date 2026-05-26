@@ -23,6 +23,7 @@ import {
   ValidateUser,
   ViewSpecifiedModFile,
   ImportMod,
+  ConfirmImportMod,
   ViewModSize,
   CheckForUpdatesBySMAPI,
 } from 'wailsjs/go/backend/App'
@@ -61,6 +62,7 @@ export {
   ValidateUser,
   ViewSpecifiedModFile,
   ImportMod,
+  ConfirmImportMod,
   ViewModSize,
   formatBytes,
   CheckForUpdatesBySMAPI,

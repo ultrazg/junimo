@@ -58,6 +58,19 @@ type LoadModsOptions struct {
 	Total int               `json:"total"`
 }
 
+type ImportModPreview struct {
+	ZipPath      string          `json:"zipPath"`
+	Manifest     ModManifestJson `json:"manifest"`
+	Exists       bool            `json:"exists"`
+	ExistingPath string          `json:"existingPath"`
+	Error        string          `json:"error"`
+}
+
+type ConfirmImportModResult struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+}
+
 type ListBackupDirsResult struct {
 	Name       string    `json:"name"`
 	Size       int64     `json:"size"`

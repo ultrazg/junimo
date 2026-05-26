@@ -15,7 +15,7 @@ import SourceOutlinedIcon from '@mui/icons-material/SourceOutlined'
 import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone'
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone'
 import styles from './index.module.scss'
-import { About, Setting, BackupModal } from '@/components'
+import { About, Setting, BackupModal, ImportModModal } from '@/components'
 import {
   LoadEnabledMods,
   LoadDisabledMods,
@@ -24,6 +24,7 @@ import {
   CheckForUpdatesBySMAPI,
 } from '@/utils'
 import SMAPI_ICON from '@/assets/images/smapi_icon.png'
+import { backend } from 'wailsjs/go/models'
 
 const MenuOptions = [
   {
@@ -46,6 +47,11 @@ const MenuBar = () => {
   const [syncLoading, setSyncLoading] = useState<boolean>(false)
   const [backupLoading, setBackupLoading] = useState<boolean>(false)
   const [backupModalOpen, setBackupModalOpen] = useState<boolean>(false)
+  const [importLoading, setImportLoading] = useState<boolean>(false)
+  const [importModal, setImportModal] = useState<{
+    open: boolean
+    items: backend.ImportModPreview[]
+  }>({ open: false, items: [] })
 
   const handleMenuItemClick = (index: number) => {
     console.log(index)
@@ -65,6 +71,16 @@ const MenuBar = () => {
       .finally(() => {
         setSyncLoading(false)
       })
+  }
+
+  const onImportMod = () => {
+    setImportLoading(true)
+    ImportMod()
+      .then((items) => {
+        if (!items || items.length === 0) return
+        setImportModal({ open: true, items })
+      })
+      .finally(() => setImportLoading(false))
   }
 
   const onBackupMod = () => {
@@ -114,9 +130,8 @@ const MenuBar = () => {
 
           <IconButton
             title={'导入 ZIP 格式的 Mod 文件'}
-            onClick={() => {
-              ImportMod().then()
-            }}
+            loading={importLoading}
+            onClick={onImportMod}
           >
             <AddTwoToneIcon />
             <Typography
@@ -232,6 +247,16 @@ const MenuBar = () => {
       <BackupModal
         open={backupModalOpen}
         onClose={() => setBackupModalOpen(false)}
+      />
+
+      <ImportModModal
+        open={importModal.open}
+        items={importModal.items}
+        onClose={() => setImportModal({ open: false, items: [] })}
+        onFinished={() => {
+          LoadEnabledMods(false).then()
+          LoadDisabledMods().then()
+        }}
       />
     </React.Fragment>
   )

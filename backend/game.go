@@ -1,7 +1,9 @@
 package backend
 
 import (
+	"archive/zip"
 	"fmt"
+	"io"
 	"io/fs"
 	"log"
 	"os"
@@ -660,8 +662,7 @@ func (a *App) ViewModSize(path string) int64 {
 	return size
 }
 
-// TODO
-func (a *App) ImportMod() {
+func (a *App) ImportMod() []ImportModPreview {
 	files, err := runtime.OpenMultipleFilesDialog(a.ctx, runtime.OpenDialogOptions{
 		Title: "请选择 Mod 文件",
 		Filters: []runtime.FileFilter{
@@ -679,10 +680,250 @@ func (a *App) ImportMod() {
 			Color:            SnackbarColorDanger,
 			Variant:          SnackbarVariantSoft,
 		})
-		return
+		return []ImportModPreview{}
 	}
 
-	fmt.Println(files)
+	if len(files) == 0 {
+		return []ImportModPreview{}
+	}
+
+	gamePath, _ := a.ReadConfig("game_path").(string)
+	if gamePath == "" {
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:          "请先在设置中配置游戏目录",
+			ShowIcon:         true,
+			AutoHideDuration: 6000,
+			Color:            SnackbarColorWarning,
+			Variant:          SnackbarVariantSoft,
+		})
+		return []ImportModPreview{}
+	}
+
+	modsPath := filepath.Join(gamePath, "Mods")
+	existing := collectInstalledMods(a, modsPath)
+
+	previews := make([]ImportModPreview, 0, len(files))
+	for _, f := range files {
+		preview := ImportModPreview{ZipPath: f}
+
+		manifest, err := readManifestFromZip(f)
+		if err != nil {
+			preview.Error = err.Error()
+			previews = append(previews, preview)
+			continue
+		}
+
+		preview.Manifest = manifest
+
+		if key := strings.ToLower(strings.TrimSpace(manifest.UniqueID)); key != "" {
+			if p, ok := existing[key]; ok {
+				preview.Exists = true
+				preview.ExistingPath = p
+			}
+		}
+
+		previews = append(previews, preview)
+	}
+
+	return previews
+}
+
+func (a *App) ConfirmImportMod(zipPath string, replace bool) ConfirmImportModResult {
+	gamePath, _ := a.ReadConfig("game_path").(string)
+	if gamePath == "" {
+		return ConfirmImportModResult{Success: false, Message: "未配置游戏目录"}
+	}
+
+	modsPath := filepath.Join(gamePath, "Mods")
+	if err := os.MkdirAll(modsPath, fs.FileMode(0755)); err != nil {
+		log.Printf("创建 Mods 目录失败: %v", err)
+		return ConfirmImportModResult{Success: false, Message: fmt.Sprintf("创建 Mods 目录失败: %v", err)}
+	}
+
+	tempDir, err := os.MkdirTemp("", "junimo_import_*")
+	if err != nil {
+		log.Printf("创建临时目录失败: %v", err)
+		return ConfirmImportModResult{Success: false, Message: fmt.Sprintf("创建临时目录失败: %v", err)}
+	}
+	defer os.RemoveAll(tempDir)
+
+	if err := Unzip(zipPath, tempDir); err != nil {
+		log.Printf("解压 %s 失败: %v", zipPath, err)
+		return ConfirmImportModResult{Success: false, Message: fmt.Sprintf("解压失败: %v", err)}
+	}
+
+	manifestDir := findModManifestFile(tempDir)
+	if manifestDir == "" {
+		return ConfirmImportModResult{Success: false, Message: "zip 中未找到 manifest.json"}
+	}
+
+	manifest, err := parseManifestFile(a, manifestDir)
+	if err != nil {
+		return ConfirmImportModResult{Success: false, Message: fmt.Sprintf("解析 manifest.json 失败: %v", err)}
+	}
+
+	dirName := resolveModDirName(tempDir, manifestDir, zipPath, manifest)
+	targetPath := filepath.Join(modsPath, dirName)
+
+	if replace {
+		if uid := strings.ToLower(strings.TrimSpace(manifest.UniqueID)); uid != "" {
+			existing := collectInstalledMods(a, modsPath)
+			if p, ok := existing[uid]; ok {
+				if err := os.RemoveAll(p); err != nil {
+					log.Printf("删除已有 Mod %s 失败: %v", p, err)
+					return ConfirmImportModResult{Success: false, Message: fmt.Sprintf("删除已有 Mod 失败: %v", err)}
+				}
+			}
+		}
+		if _, err := os.Stat(targetPath); err == nil {
+			if err := os.RemoveAll(targetPath); err != nil {
+				log.Printf("清理目标目录 %s 失败: %v", targetPath, err)
+				return ConfirmImportModResult{Success: false, Message: fmt.Sprintf("清理目标目录失败: %v", err)}
+			}
+		}
+	} else {
+		if _, err := os.Stat(targetPath); err == nil {
+			return ConfirmImportModResult{Success: false, Message: fmt.Sprintf("目标目录 %s 已存在", targetPath)}
+		}
+	}
+
+	srcPath := manifestDir
+	if manifestDir != tempDir {
+		rel, err := filepath.Rel(tempDir, manifestDir)
+		if err == nil {
+			top := strings.SplitN(rel, string(filepath.Separator), 2)[0]
+			srcPath = filepath.Join(tempDir, top)
+		}
+	}
+
+	if err := copyDir(srcPath, targetPath); err != nil {
+		log.Printf("拷贝 Mod 到 %s 失败: %v", targetPath, err)
+		os.RemoveAll(targetPath)
+		return ConfirmImportModResult{Success: false, Message: fmt.Sprintf("写入 Mod 失败: %v", err)}
+	}
+
+	log.Printf("成功导入 Mod %s 到 %s", manifest.Name, targetPath)
+	a.LoadEnabledMods(false)
+
+	return ConfirmImportModResult{Success: true, Message: targetPath}
+}
+
+func readManifestFromZip(zipPath string) (ModManifestJson, error) {
+	reader, err := zip.OpenReader(zipPath)
+	if err != nil {
+		return ModManifestJson{}, fmt.Errorf("打开 zip 失败: %w", err)
+	}
+	defer reader.Close()
+
+	var chosen *zip.File
+	for _, f := range reader.File {
+		if f.FileInfo().IsDir() {
+			continue
+		}
+		if !strings.EqualFold(filepath.Base(f.Name), ModManifestFileName) {
+			continue
+		}
+		if chosen == nil || strings.Count(f.Name, "/") < strings.Count(chosen.Name, "/") {
+			chosen = f
+		}
+	}
+
+	if chosen == nil {
+		return ModManifestJson{}, fmt.Errorf("zip 中未找到 manifest.json")
+	}
+
+	rc, err := chosen.Open()
+	if err != nil {
+		return ModManifestJson{}, fmt.Errorf("读取 manifest.json 失败: %w", err)
+	}
+	defer rc.Close()
+
+	data, err := io.ReadAll(rc)
+	if err != nil {
+		return ModManifestJson{}, fmt.Errorf("读取 manifest.json 失败: %w", err)
+	}
+
+	jsonStr := string(data)
+	manifest := ModManifestJson{
+		Name:              gjson.Get(jsonStr, "Name").String(),
+		Author:            gjson.Get(jsonStr, "Author").String(),
+		Version:           gjson.Get(jsonStr, "Version").String(),
+		MinimumApiVersion: gjson.Get(jsonStr, "MinimumApiVersion").String(),
+		Description:       gjson.Get(jsonStr, "Description").String(),
+		UniqueID:          gjson.Get(jsonStr, "UniqueID").String(),
+		EntryDll:          gjson.Get(jsonStr, "EntryDll").String(),
+	}
+	if updateKeys := gjson.Get(jsonStr, "UpdateKeys"); updateKeys.Exists() && updateKeys.IsArray() {
+		for _, v := range updateKeys.Array() {
+			manifest.UpdateKeys = append(manifest.UpdateKeys, v.String())
+		}
+	}
+	if key, ok := getNexusKey(manifest.UpdateKeys); ok {
+		manifest.NexusKey = key
+	}
+
+	return manifest, nil
+}
+
+func collectInstalledMods(a *App, modsPath string) map[string]string {
+	result := map[string]string{}
+	entries, err := os.ReadDir(modsPath)
+	if err != nil {
+		return result
+	}
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+		modDir := filepath.Join(modsPath, entry.Name())
+		manifestDir := findModManifestFile(modDir)
+		if manifestDir == "" {
+			continue
+		}
+		m, err := parseManifestFile(a, manifestDir)
+		if err != nil {
+			continue
+		}
+		uid := strings.ToLower(strings.TrimSpace(m.UniqueID))
+		if uid == "" {
+			continue
+		}
+		result[uid] = modDir
+	}
+	return result
+}
+
+func resolveModDirName(tempDir, manifestDir, zipPath string, manifest ModManifestJson) string {
+	if manifestDir != tempDir {
+		rel, err := filepath.Rel(tempDir, manifestDir)
+		if err == nil && rel != "." {
+			top := strings.SplitN(rel, string(filepath.Separator), 2)[0]
+			if top != "" {
+				return sanitizeDirName(top)
+			}
+		}
+	}
+	if name := sanitizeDirName(manifest.Name); name != "" {
+		return name
+	}
+	base := filepath.Base(zipPath)
+	return sanitizeDirName(strings.TrimSuffix(base, filepath.Ext(base)))
+}
+
+func sanitizeDirName(name string) string {
+	name = strings.TrimSpace(name)
+	replacer := strings.NewReplacer(
+		`\`, "_",
+		`/`, "_",
+		`:`, "_",
+		`*`, "_",
+		`?`, "_",
+		`"`, "_",
+		`<`, "_",
+		`>`, "_",
+		`|`, "_",
+	)
+	return replacer.Replace(name)
 }
 
 func getNexusKey(inputs []string) (int, bool) {
