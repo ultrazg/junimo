@@ -71,6 +71,22 @@ type ConfirmImportModResult struct {
 	Message string `json:"message"`
 }
 
+type ModUpdateInfo struct {
+	Name           string `json:"name"`
+	NexusKey       int    `json:"nexusKey"`
+	CurrentVersion string `json:"currentVersion"`
+	LatestVersion  string `json:"latestVersion"`
+	HasUpdate      bool   `json:"hasUpdate"`
+	Error          string `json:"error"`
+}
+
+type CheckForUpdatesResult struct {
+	Success bool            `json:"success"`
+	Message string          `json:"message"`
+	Total   int             `json:"total"`
+	Items   []ModUpdateInfo `json:"items"`
+}
+
 type ListBackupDirsResult struct {
 	Name       string    `json:"name"`
 	Size       int64     `json:"size"`

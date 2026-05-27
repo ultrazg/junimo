@@ -2,11 +2,11 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { Button, Chip, Typography } from '@mui/joy'
 import { Modal } from '@/components'
 import { ConfirmImportMod, snackbar } from '@/utils'
-import { backend } from 'wailsjs/go/models'
+import { ImportModPreviewType } from '@/types'
 
 type IProps = {
   open: boolean
-  items: backend.ImportModPreview[]
+  items: ImportModPreviewType[]
   onClose: () => void
   onFinished: () => void
 }

@@ -120,3 +120,60 @@ func (a *App) ValidateUser(apiKey string) *NexusUserValidateResult {
 		ProfileUrl: r.ProfileUrl,
 	}
 }
+
+func (a *App) CheckForUpdatesByNexus() CheckForUpdatesResult {
+	apiKey, _ := a.ReadConfig("nexus_api_key").(string)
+	if apiKey == "" {
+		SnackbarShow(a.ctx, &SnackbarShowOptions{
+			Message:          "请先在设置中配置 Nexus Mods API Key",
+			ShowIcon:         true,
+			AutoHideDuration: 6000,
+			Color:            SnackbarColorWarning,
+			Variant:          SnackbarVariantSoft,
+		})
+		return CheckForUpdatesResult{Success: false, Message: "未配置 Nexus Mods API Key"}
+	}
+
+	gamePath, _ := a.ReadConfig("game_path").(string)
+	if gamePath == "" {
+		return CheckForUpdatesResult{Success: false, Message: "未配置游戏目录"}
+	}
+
+	modsPath := filepath.Join(gamePath, "Mods")
+	entries, err := os.ReadDir(modsPath)
+	if err != nil {
+		log.Printf("读取 Mods 目录失败: %v", err)
+		return CheckForUpdatesResult{Success: false, Message: fmt.Sprintf("读取 Mods 目录失败: %v", err)}
+	}
+
+	var targets []ModManifestJson
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+		manifestDir := findModManifestFile(filepath.Join(modsPath, entry.Name()))
+		if manifestDir == "" {
+			continue
+		}
+		m, err := parseManifestFile(a, manifestDir)
+		if err != nil {
+			continue
+		}
+		if m.NexusKey > 0 {
+			targets = append(targets, m)
+		}
+	}
+
+	if len(targets) == 0 {
+		return CheckForUpdatesResult{Success: true, Total: 0, Items: []ModUpdateInfo{}}
+	}
+
+	items := a.nexus.CheckForUpdate(targets)
+	log.Printf("通过 Nexus 检查 %d 个 mod 更新完成", len(items))
+
+	return CheckForUpdatesResult{
+		Success: true,
+		Total:   len(items),
+		Items:   items,
+	}
+}

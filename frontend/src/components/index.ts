@@ -7,6 +7,7 @@ import ModConfigModal from './ModConfigModal'
 import DeleteModal from './DeleteModal'
 import BackupModal from './BackupModal'
 import ImportModModal from './ImportModModal'
+import ModUpdatesModal from './ModUpdatesModal'
 
 export {
   MenuBar,
@@ -18,4 +19,5 @@ export {
   DeleteModal,
   BackupModal,
   ImportModModal,
+  ModUpdatesModal,
 }

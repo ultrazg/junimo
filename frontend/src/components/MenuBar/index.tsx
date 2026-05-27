@@ -15,16 +15,23 @@ import SourceOutlinedIcon from '@mui/icons-material/SourceOutlined'
 import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone'
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone'
 import styles from './index.module.scss'
-import { About, Setting, BackupModal, ImportModModal } from '@/components'
+import {
+  About,
+  Setting,
+  BackupModal,
+  ImportModModal,
+  ModUpdatesModal,
+} from '@/components'
 import {
   LoadEnabledMods,
   LoadDisabledMods,
   BackupModDir,
   ImportMod,
   CheckForUpdatesBySMAPI,
+  CheckForUpdatesByNexus,
 } from '@/utils'
 import SMAPI_ICON from '@/assets/images/smapi_icon.png'
-import { backend } from 'wailsjs/go/models'
+import { ImportModPreviewType, CheckForUpdatesResultType } from '@/types'
 
 const MenuOptions = [
   {
@@ -50,13 +57,39 @@ const MenuBar = () => {
   const [importLoading, setImportLoading] = useState<boolean>(false)
   const [importModal, setImportModal] = useState<{
     open: boolean
-    items: backend.ImportModPreview[]
+    items: ImportModPreviewType[]
   }>({ open: false, items: [] })
+  const [updatesModal, setUpdatesModal] = useState<{
+    open: boolean
+    loading: boolean
+    result?: CheckForUpdatesResultType
+  }>({ open: false, loading: false })
+
+  const onCheckUpdatesByNexus = () => {
+    setUpdatesModal({ open: true, loading: true, result: undefined })
+    CheckForUpdatesByNexus()
+      .then((res) => {
+        setUpdatesModal({ open: true, loading: false, result: res })
+      })
+      .catch((err) => {
+        setUpdatesModal({
+          open: true,
+          loading: false,
+          result: {
+            success: false,
+            message: String(err),
+            total: 0,
+            items: [],
+          },
+        })
+      })
+  }
 
   const handleMenuItemClick = (index: number) => {
-    console.log(index)
-    if (index === 1) {
+    if (index === 0) {
       CheckForUpdatesBySMAPI().then()
+    } else if (index === 1) {
+      onCheckUpdatesByNexus()
     }
     setOpen(false)
   }
@@ -257,6 +290,16 @@ const MenuBar = () => {
           LoadEnabledMods(false).then()
           LoadDisabledMods().then()
         }}
+      />
+
+      <ModUpdatesModal
+        open={updatesModal.open}
+        loading={updatesModal.loading}
+        result={updatesModal.result}
+        onClose={() =>
+          setUpdatesModal({ open: false, loading: false, result: undefined })
+        }
+        onRefresh={onCheckUpdatesByNexus}
       />
     </React.Fragment>
   )
