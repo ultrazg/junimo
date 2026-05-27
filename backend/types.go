@@ -87,6 +87,17 @@ type CheckForUpdatesResult struct {
 	Items   []ModUpdateInfo `json:"items"`
 }
 
+type ModChangelogEntry struct {
+	Version string   `json:"version"`
+	Changes []string `json:"changes"`
+}
+
+type ViewModChangelogResult struct {
+	Success bool                `json:"success"`
+	Message string              `json:"message"`
+	Entries []ModChangelogEntry `json:"entries"`
+}
+
 type ListBackupDirsResult struct {
 	Name       string    `json:"name"`
 	Size       int64     `json:"size"`
@@ -99,6 +110,9 @@ const (
 
 	// 根据 ModID 获取 Mod 的所有文件
 	ApiViewSpecifiedModFile = "https://api.nexusmods.com/v1/games/stardewvalley/mods/%s/files.json"
+
+	// 根据 ModID 获取 Mod 的更新日志
+	ApiViewModChangelog = "https://api.nexusmods.com/v1/games/stardewvalley/mods/%s/changelogs.json"
 )
 
 type Client struct {

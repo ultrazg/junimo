@@ -37,6 +37,17 @@ export type CheckForUpdatesResultType = {
   items: ModUpdateInfoType[]
 }
 
+export type ModChangelogEntryType = {
+  version: string
+  changes: string[]
+}
+
+export type ViewModChangelogResultType = {
+  success: boolean
+  message: string
+  entries: ModChangelogEntryType[]
+}
+
 export type SnackbarOptions = {
   color?: 'primary' | 'neutral' | 'danger' | 'success' | 'warning'
   variant?: 'soft' | 'solid' | 'outlined' | 'plain'

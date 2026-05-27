@@ -113,6 +113,47 @@ func (c *Client) GetJSON(url string, target any) error {
 	return json.Unmarshal(mergedBody, target)
 }
 
+func (c *Client) GetRaw(url string) ([]byte, error) {
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("apiKey", c.apiKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.http.Do(req)
+	if err != nil {
+		log.Printf("GET 请求 %s 失败: %v", url, err)
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		log.Printf("GET 请求 %s 失败：%d %s", url, resp.StatusCode, resp.Status)
+		statusMsg := getStatusMsg(resp.StatusCode)
+		if resp.StatusCode == http.StatusTooManyRequests {
+			statusMsg = fmt.Sprintf(
+				"%s，当前小时限制：%s，当前小时剩余：%s，当前小时重置时间：%s，当前天限制：%s，当前天剩余：%s，当前天重置时间：%s",
+				statusMsg,
+				resp.Header.Get("X-Rl-Hourly-Limit"), resp.Header.Get("X-Rl-Hourly-Remaining"), resp.Header.Get("X-Rl-Hourly-Reset"),
+				resp.Header.Get("X-Rl-Daily-Limit"), resp.Header.Get("X-Rl-Daily-Remaining"), resp.Header.Get("X-Rl-Daily-Reset"),
+			)
+		}
+		return nil, fmt.Errorf("%s", statusMsg)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("读取响应体失败：%v", err)
+		return nil, err
+	}
+
+	log.Printf("GET 请求 %s", url)
+
+	return body, nil
+}
+
 func (c *Client) PostJSON(url string, data, target any) error {
 	b, err := json.Marshal(data)
 	if err != nil {

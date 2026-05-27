@@ -1,7 +1,9 @@
 package backend
 
 import (
+	"encoding/json"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -48,6 +50,40 @@ func (n *Nexus) ViewSpecifiedModFile(modID string) (*NexusViewSpecifiedModFileRe
 	}
 
 	return result, nil
+}
+
+// ViewModChangelog 根据 ModID 获取更新日志，返回按版本号降序排列的条目
+func (n *Nexus) ViewModChangelog(modID string) ([]ModChangelogEntry, error) {
+	apiKey := viper.GetString("nexus_api_key")
+	if apiKey == "" {
+		return nil, fmt.Errorf("请检查 Nexus Mods API Key 是否正确")
+	}
+
+	client, err := NewClient(apiKey)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := client.GetRaw(fmt.Sprintf(ApiViewModChangelog, modID))
+	if err != nil {
+		return nil, err
+	}
+
+	raw := map[string][]string{}
+	if err := json.Unmarshal(body, &raw); err != nil {
+		return nil, err
+	}
+
+	entries := make([]ModChangelogEntry, 0, len(raw))
+	for version, changes := range raw {
+		entries = append(entries, ModChangelogEntry{Version: version, Changes: changes})
+	}
+
+	sort.Slice(entries, func(i, j int) bool {
+		return compareVersion(entries[i].Version, entries[j].Version) > 0
+	})
+
+	return entries, nil
 }
 
 const nexusMaxConcurrency = 5

@@ -25,6 +25,7 @@ import {
   ImportMod,
   ConfirmImportMod,
   ViewModSize,
+  ViewModChangelog,
   CheckForUpdatesBySMAPI,
   CheckForUpdatesByNexus,
 } from 'wailsjs/go/backend/App'
@@ -65,6 +66,7 @@ export {
   ImportMod,
   ConfirmImportMod,
   ViewModSize,
+  ViewModChangelog,
   formatBytes,
   CheckForUpdatesBySMAPI,
   CheckForUpdatesByNexus,

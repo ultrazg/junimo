@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -175,5 +176,18 @@ func (a *App) CheckForUpdatesByNexus() CheckForUpdatesResult {
 		Success: true,
 		Total:   len(items),
 		Items:   items,
+	}
+}
+
+func (a *App) ViewModChangelog(nexusKey int) ViewModChangelogResult {
+	entries, err := a.nexus.ViewModChangelog(strconv.Itoa(nexusKey))
+	if err != nil {
+		log.Printf("获取 Mod %d 更新日志失败：%v", nexusKey, err)
+		return ViewModChangelogResult{Success: false, Message: err.Error()}
+	}
+
+	return ViewModChangelogResult{
+		Success: true,
+		Entries: entries,
 	}
 }

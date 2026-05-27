@@ -84,7 +84,9 @@ const SnackbarProviderInner = forwardRef<
         size={'sm'}
       >
         {options.showIcon && renderSnackbarIcon(options.color)}
-        <pre>{message}</pre>
+        <pre style={{ fontFamily: 'inherit', padding: 0, margin: 0 }}>
+          {message}
+        </pre>
       </Snackbar>
     </>
   )
