@@ -206,7 +206,7 @@ const BackupModal: React.FC<IProps> = ({ open, onClose }) => {
             </Table>
           </div>
         ) : (
-          <div style={{ textAlign: 'center' }}>暂无备份</div>
+          <div style={{ textAlign: 'center', fontStyle: 'italic' }}>暂无备份</div>
         )}
       </Modal>
 

@@ -103,7 +103,7 @@ const ModUpdatesModal: React.FC<IProps> = ({
               </div>
             </div>
           ) : !result ? (
-            <div style={{ textAlign: 'center', padding: 24 }}>暂无数据</div>
+            <div style={{ textAlign: 'center', padding: 24, fontStyle: 'italic' }}>暂无数据</div>
           ) : !result.success ? (
             <Typography
               level={'body-md'}
@@ -247,7 +247,7 @@ const ModUpdatesModal: React.FC<IProps> = ({
               {changelog.message}
             </Typography>
           ) : changelog.entries.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: 24 }}>暂无更新日志</div>
+            <div style={{ textAlign: 'center', padding: 24, fontStyle: 'italic' }}>暂无更新日志</div>
           ) : (
             changelog.entries.map((entry) => (
               <div

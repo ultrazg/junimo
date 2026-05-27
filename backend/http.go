@@ -52,7 +52,7 @@ func (c *Client) GetJSON(url string, target any) error {
 		return err
 	}
 
-	req.Header.Set("apiKey", c.apiKey)
+	req.Header.Set("apikey", c.apiKey)
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := c.http.Do(req)
@@ -119,7 +119,7 @@ func (c *Client) GetRaw(url string) ([]byte, error) {
 		return nil, err
 	}
 
-	req.Header.Set("apiKey", c.apiKey)
+	req.Header.Set("apikey", c.apiKey)
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := c.http.Do(req)
@@ -166,7 +166,7 @@ func (c *Client) PostJSON(url string, data, target any) error {
 		return err
 	}
 
-	req.Header.Set("apiKey", c.apiKey)
+	req.Header.Set("apikey", c.apiKey)
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := c.http.Do(req)
