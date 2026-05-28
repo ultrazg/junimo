@@ -78,6 +78,42 @@ type ModUpdateInfo struct {
 	LatestVersion  string `json:"latestVersion"`
 	HasUpdate      bool   `json:"hasUpdate"`
 	Error          string `json:"error"`
+	ModPath        string `json:"modPath"`
+	ConfigPath     string `json:"configPath"`
+	UniqueID       string `json:"uniqueID"`
+	LatestFileID   int    `json:"latestFileID"`
+	LatestFileName string `json:"latestFileName"`
+}
+
+type UpdateModResult struct {
+	Success    bool   `json:"success"`
+	Message    string `json:"message"`
+	BackupName string `json:"backupName"`
+	NewModPath string `json:"newModPath"`
+}
+
+type ModUpdateBackup struct {
+	Name           string    `json:"name"`
+	ModName        string    `json:"modName"`
+	ModPath        string    `json:"modPath"`
+	OldVersion     string    `json:"oldVersion"`
+	NewVersion     string    `json:"newVersion"`
+	UniqueID       string    `json:"uniqueID"`
+	Size           int64     `json:"size"`
+	CreateTime     time.Time `json:"createTime"`
+	KeptConfig     bool      `json:"keptConfig"`
+	OriginalDir    string    `json:"originalDir"`
+}
+
+type RollbackModUpdateResult struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+}
+
+type NexusDownloadLink struct {
+	Name      string `json:"name"`
+	ShortName string `json:"short_name"`
+	URI       string `json:"URI"`
 }
 
 type CheckForUpdatesResult struct {
@@ -113,6 +149,9 @@ const (
 
 	// 根据 ModID 获取 Mod 的更新日志
 	ApiViewModChangelog = "https://api.nexusmods.com/v1/games/stardewvalley/mods/%s/changelogs.json"
+
+	// 获取指定文件的下载链接（需要 Premium 账户，或者非 Premium 用户通过浏览器拿到 key/expires 参数）
+	ApiDownloadLink = "https://api.nexusmods.com/v1/games/stardewvalley/mods/%s/files/%s/download_link.json"
 )
 
 type Client struct {

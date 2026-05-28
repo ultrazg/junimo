@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 func openDir(path string) error {
@@ -442,6 +444,44 @@ func extractFile(file *zip.File, dstPath string) error {
 
 	if err != nil {
 		return fmt.Errorf("failed to copy data to file %s: %w", targetPath, err)
+	}
+
+	return nil
+}
+
+// DownloadFile 下载远程文件到 dstPath，使用更长的超时以兼容大文件
+func DownloadFile(url, dstPath string) error {
+	client := &http.Client{
+		Timeout: 10 * time.Minute,
+	}
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return fmt.Errorf("创建下载请求失败: %w", err)
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("下载失败: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("下载失败: HTTP %d %s", resp.StatusCode, resp.Status)
+	}
+
+	if err := os.MkdirAll(filepath.Dir(dstPath), 0755); err != nil {
+		return fmt.Errorf("创建目录失败: %w", err)
+	}
+
+	out, err := os.Create(dstPath)
+	if err != nil {
+		return fmt.Errorf("创建下载文件失败: %w", err)
+	}
+	defer out.Close()
+
+	if _, err := io.Copy(out, resp.Body); err != nil {
+		return fmt.Errorf("写入下载文件失败: %w", err)
 	}
 
 	return nil

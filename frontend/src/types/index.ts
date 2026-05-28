@@ -28,6 +28,11 @@ export type ModUpdateInfoType = {
   latestVersion: string
   hasUpdate: boolean
   error: string
+  modPath: string
+  configPath: string
+  uniqueID: string
+  latestFileID: number
+  latestFileName: string
 }
 
 export type CheckForUpdatesResultType = {
@@ -46,6 +51,31 @@ export type ViewModChangelogResultType = {
   success: boolean
   message: string
   entries: ModChangelogEntryType[]
+}
+
+export type UpdateModResultType = {
+  success: boolean
+  message: string
+  backupName: string
+  newModPath: string
+}
+
+export type RollbackModUpdateResultType = {
+  success: boolean
+  message: string
+}
+
+export type ModUpdateBackupType = {
+  name: string
+  modName: string
+  modPath: string
+  oldVersion: string
+  newVersion: string
+  uniqueID: string
+  size: number
+  createTime: string
+  keptConfig: boolean
+  originalDir: string
 }
 
 export type SnackbarOptions = {

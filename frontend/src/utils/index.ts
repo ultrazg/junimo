@@ -28,6 +28,10 @@ import {
   ViewModChangelog,
   CheckForUpdatesBySMAPI,
   CheckForUpdatesByNexus,
+  UpdateMod,
+  ListModUpdateBackups,
+  RollbackModUpdate,
+  RemoveModUpdateBackup,
 } from 'wailsjs/go/backend/App'
 import { EventsOn, BrowserOpenURL } from 'wailsjs/runtime'
 import { onSaveGamePath, formatBytes } from './fs'
@@ -70,4 +74,8 @@ export {
   formatBytes,
   CheckForUpdatesBySMAPI,
   CheckForUpdatesByNexus,
+  UpdateMod,
+  ListModUpdateBackups,
+  RollbackModUpdate,
+  RemoveModUpdateBackup,
 }

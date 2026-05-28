@@ -52,6 +52,37 @@ func (n *Nexus) ViewSpecifiedModFile(modID string) (*NexusViewSpecifiedModFileRe
 	return result, nil
 }
 
+// GetDownloadLink 获取指定文件的下载链接，按 short_name 排序后取第一个可用 URI
+func (n *Nexus) GetDownloadLink(modID, fileID string) (string, error) {
+	apiKey := viper.GetString("nexus_api_key")
+	if apiKey == "" {
+		return "", fmt.Errorf("请检查 Nexus Mods API Key 是否正确")
+	}
+
+	client, err := NewClient(apiKey)
+	if err != nil {
+		return "", err
+	}
+
+	body, err := client.GetRaw(fmt.Sprintf(ApiDownloadLink, modID, fileID))
+	if err != nil {
+		return "", err
+	}
+
+	var links []NexusDownloadLink
+	if err := json.Unmarshal(body, &links); err != nil {
+		return "", fmt.Errorf("解析下载链接失败: %w", err)
+	}
+
+	for _, l := range links {
+		if l.URI != "" {
+			return l.URI, nil
+		}
+	}
+
+	return "", fmt.Errorf("未找到可用的下载链接（非 Premium 用户需要通过 Nexus 网站获取下载链接）")
+}
+
 // ViewModChangelog 根据 ModID 获取更新日志，返回按版本号降序排列的条目
 func (n *Nexus) ViewModChangelog(modID string) ([]ModChangelogEntry, error) {
 	apiKey := viper.GetString("nexus_api_key")
@@ -105,6 +136,9 @@ func (n *Nexus) CheckForUpdate(mods []ModManifestJson) []ModUpdateInfo {
 				Name:           mod.Name,
 				NexusKey:       mod.NexusKey,
 				CurrentVersion: mod.Version,
+				ModPath:        mod.ModPath,
+				ConfigPath:     mod.ConfigPath,
+				UniqueID:       mod.UniqueID,
 			}
 
 			res, err := n.ViewSpecifiedModFile(strconv.Itoa(mod.NexusKey))
@@ -114,8 +148,10 @@ func (n *Nexus) CheckForUpdate(mods []ModManifestJson) []ModUpdateInfo {
 				return
 			}
 
-			latest := latestVersionFromFiles(res.Files)
+			latest, fileID, fileName := latestPrimaryFile(res.Files)
 			info.LatestVersion = latest
+			info.LatestFileID = fileID
+			info.LatestFileName = fileName
 			info.HasUpdate = latest != "" && compareVersion(latest, mod.Version) > 0
 
 			results[i] = info
@@ -126,8 +162,8 @@ func (n *Nexus) CheckForUpdate(mods []ModManifestJson) []ModUpdateInfo {
 	return results
 }
 
-// latestVersionFromFiles 从 Nexus 返回的文件列表里取主文件版本，否则取上传时间最大的一项
-func latestVersionFromFiles(files []Files) string {
+// latestPrimaryFile 取主文件（is_primary）；若无主文件，则取上传时间最新的非过期文件
+func latestPrimaryFile(files []Files) (version string, fileID int, fileName string) {
 	var primary *Files
 	var newest *Files
 	for i := range files {
@@ -145,12 +181,12 @@ func latestVersionFromFiles(files []Files) string {
 		}
 	}
 	if primary != nil {
-		return modVersionOf(primary)
+		return modVersionOf(primary), primary.FileID, primary.FileName
 	}
 	if newest != nil {
-		return modVersionOf(newest)
+		return modVersionOf(newest), newest.FileID, newest.FileName
 	}
-	return ""
+	return "", 0, ""
 }
 
 func modVersionOf(f *Files) string {
