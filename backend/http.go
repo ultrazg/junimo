@@ -33,6 +33,16 @@ func getStatusMsg(statusCode int) string {
 	return fmt.Sprintf("网络异常: %d", statusCode)
 }
 
+// StatusError 带原始 HTTP 状态码的错误，供调用方按状态码做特殊处理
+type StatusError struct {
+	StatusCode int
+	Msg        string
+}
+
+func (e *StatusError) Error() string {
+	return e.Msg
+}
+
 func NewClient(apiKey string) (*Client, error) {
 	if apiKey == "" {
 		return nil, errors.New("缺少 Nexus Mods API Key 配置，请在设置中添加")
@@ -80,7 +90,7 @@ func (c *Client) GetJSON(url string, target any) error {
 				dailyLimit, dailyRemaining, dailyReset,
 			)
 		}
-		return fmt.Errorf("%s", statusMsg)
+		return &StatusError{StatusCode: resp.StatusCode, Msg: statusMsg}
 	}
 
 	body, err := io.ReadAll(resp.Body)
@@ -140,7 +150,7 @@ func (c *Client) GetRaw(url string) ([]byte, error) {
 				resp.Header.Get("X-Rl-Daily-Limit"), resp.Header.Get("X-Rl-Daily-Remaining"), resp.Header.Get("X-Rl-Daily-Reset"),
 			)
 		}
-		return nil, fmt.Errorf("%s", statusMsg)
+		return nil, &StatusError{StatusCode: resp.StatusCode, Msg: statusMsg}
 	}
 
 	body, err := io.ReadAll(resp.Body)
@@ -178,7 +188,7 @@ func (c *Client) PostJSON(url string, data, target any) error {
 
 	if resp.StatusCode != http.StatusOK {
 		log.Printf("POST 请求 %s 失败：%d %s", url, resp.StatusCode, resp.Status)
-		return fmt.Errorf("%s", getStatusMsg(resp.StatusCode))
+		return &StatusError{StatusCode: resp.StatusCode, Msg: getStatusMsg(resp.StatusCode)}
 	}
 
 	body, err := io.ReadAll(resp.Body)

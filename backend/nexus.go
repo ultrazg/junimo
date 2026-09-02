@@ -2,7 +2,9 @@ package backend
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"net/http"
 	"sort"
 	"strconv"
 	"strings"
@@ -66,6 +68,10 @@ func (n *Nexus) GetDownloadLink(modID, fileID string) (string, error) {
 
 	body, err := client.GetRaw(fmt.Sprintf(ApiDownloadLink, modID, fileID))
 	if err != nil {
+		var statusErr *StatusError
+		if errors.As(err, &statusErr) && statusErr.StatusCode == http.StatusForbidden {
+			return "", fmt.Errorf("Nexus 拒绝访问（403）：API 获取下载链接需要 Premium 账户；Premium 用户请到 nexusmods.com/users/myaccount?tab=api 重新生成 API Key 并勾选「Request Download Permission」下载权限")
+		}
 		return "", err
 	}
 
